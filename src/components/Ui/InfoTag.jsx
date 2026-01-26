@@ -1,8 +1,8 @@
 function InfoTag({ className, icon, text }) {
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <span className="text-xl">{icon}</span>
-      <p className="text-base">{text}</p>
+    <div className={`flex items-center gap-1 text-zinc-200 ${className}`}>
+      <span className="text-base">{icon}</span>
+      <p className="text-sm">{text}</p>
     </div>
   );
 }

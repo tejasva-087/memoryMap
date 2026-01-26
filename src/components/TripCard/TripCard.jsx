@@ -1,30 +1,18 @@
-import {
-  CalendarBlankIcon,
-  ClockCountdownIcon,
-  DotOutlineIcon,
-} from "@phosphor-icons/react";
+import { useNavigate } from "react-router-dom";
 
-import TripCardHeader from "./TripCardHeader";
-import InfoTag from "../Ui/InfoTag";
-import TripMeta from "./TripMeta";
+function TripCard({ id, coordinates, children }) {
+  const navigate = useNavigate();
 
-function TripCard({
-  id,
-  countryName,
-  date,
-  duration,
-  rating,
-  description,
-  countryCode,
-}) {
+  function handleClick() {
+    navigate(`view/${id}?lat=${coordinates.lat}&lng=${coordinates.lng}`);
+  }
+
   return (
-    <div className="flex flex-col gap-4 p-4 bg-zinc-700 rounded-2xl">
-      <TripCardHeader
-        countryName={countryName}
-        countryCode={countryCode}
-        id={id}
-      />
-      <TripMeta date={date} duration={duration} rating={rating} />
+    <div
+      className="flex flex-col gap-4 p-4 bg-zinc-700 rounded-xl"
+      onClick={handleClick}
+    >
+      {children}
     </div>
   );
 }

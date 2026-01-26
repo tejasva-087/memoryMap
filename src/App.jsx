@@ -1,19 +1,19 @@
 import { createBrowserRouter, Router, RouterProvider } from "react-router-dom";
 
 import { TripContextProvider } from "./context/TripContext";
-import DefaultLayout from "./components/Layouts/DefaultLayout";
-import ViewTrips from "./components/Layouts/ViewTrips";
+import HomePage from "./components/Layouts/HomePage";
 import AddTrip from "./components/Layouts/AddTrip";
+import ViewTrip from "./components/Layouts/ViewTrip";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <DefaultLayout />,
+      element: <HomePage />,
       children: [
         {
-          index: true,
-          element: <ViewTrips />,
+          path: "view/:id",
+          element: <ViewTrip />,
         },
         {
           path: "add",

@@ -3,17 +3,17 @@ import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import CustomMapMarker from "./CustomMapMarker";
-import CustomPopup from "./CustomPopUp";
 import MapEvent from "./MapEvent";
+import MarkerList from "./MarkerList";
 
+// IMP: REMOVE THIS VARIABLE
 const NODE_ENV = "development";
 
 function Map() {
   const [userLocation, setUserLocation] = useState(null);
 
-  // FETCHING USER'S CURRENT LOCATION
   useEffect(() => {
+    // IMP: REMOVE THIS LINE OF CODE
     if (NODE_ENV === "development") return;
 
     if (navigator.geolocation) {
@@ -35,6 +35,7 @@ function Map() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       ></TileLayer>
       <MapEvent />
+      <MarkerList />
     </MapContainer>
   );
 }

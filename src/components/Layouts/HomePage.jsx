@@ -1,14 +1,15 @@
 import { Outlet } from "react-router-dom";
-
 import Map from "../Map/Map";
+import SideBar from "../Ui/SideBar";
 
-function DefaultLayout() {
+function HomePage() {
   return (
     <div className="w-screen h-screen grid grid-cols-[400px_1fr] bg-zinc-900">
-      <Outlet />
+      <SideBar />
       <Map />
+      <Outlet />
     </div>
   );
 }
 
-export default DefaultLayout;
+export default HomePage;

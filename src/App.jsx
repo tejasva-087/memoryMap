@@ -4,6 +4,7 @@ import { TripContextProvider } from "./context/TripContext";
 import HomePage from "./components/Layouts/HomePage";
 import AddTrip from "./components/Layouts/AddTrip";
 import ViewTrip from "./components/Layouts/ViewTrip";
+import { ErrorContextProvider } from "./context/ErrorContext";
 
 function App() {
   const router = createBrowserRouter([
@@ -24,9 +25,11 @@ function App() {
   ]);
 
   return (
-    <TripContextProvider>
-      <RouterProvider router={router}></RouterProvider>
-    </TripContextProvider>
+    <ErrorContextProvider>
+      <TripContextProvider>
+        <RouterProvider router={router}></RouterProvider>
+      </TripContextProvider>
+    </ErrorContextProvider>
   );
 }
 

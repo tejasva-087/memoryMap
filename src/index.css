@@ -10,3 +10,18 @@
   margin: 0 !important;
   padding: 6px 12px;
 }
+
+@keyframes slide-in {
+  from {
+    right: -600px;
+  }
+  to {
+    right: 0;
+  }
+}
+
+.side-bar-animate {
+  animation: slide-in 0.2s ease-out forwards;
+  white-space: nowrap;
+  overflow: hidden;
+}

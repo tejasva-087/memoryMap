@@ -6,4 +6,17 @@ function getFlag(countryCode) {
   return `https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`;
 }
 
-export { getFlag };
+async function getPlaceDetails(lat, lng) {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+    );
+    const data = res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export { getFlag, getPlaceDetails };

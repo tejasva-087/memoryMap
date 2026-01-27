@@ -2,17 +2,23 @@ import { StarIcon } from "@phosphor-icons/react";
 
 const arr = Array.from({ length: 5 });
 
-function Ratings({ rating }) {
+function Ratings({ rating, defaultView = true }) {
   return (
-    <div className="flex items-center">
+    <ul
+      className={`flex items-center ${defaultView ? "text-base" : "text-xl"}`}
+    >
       {arr.map((_, i) => {
         return i < rating ? (
-          <StarIcon color="#ffde00" weight="fill" key={i} />
+          <li key={i}>
+            <StarIcon color="#ffde00" weight="fill" />
+          </li>
         ) : (
-          <StarIcon color="#ffde00" key={i} />
+          <li key={i}>
+            <StarIcon color="#ffde00" />
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }
 

@@ -1,11 +1,13 @@
-import Logo from "../Ui/Logo";
-import SideBar from "../Ui/SideBar";
+import AddTripForm from "../AddTripForm/AddTripForm";
 
 function AddTrip() {
   return (
-    <SideBar>
-      <Logo />
-    </SideBar>
+    <div
+      className="absolute top-0 h-screen w-150 bg-zinc-800 text-zinc-50 p-12 flex flex-col gap-6 side-bar-animate overflow-y-scroll"
+      style={{ zIndex: 999 }}
+    >
+      <AddTripForm />
+    </div>
   );
 }
 

@@ -1,8 +1,10 @@
-function InfoTag({ className, icon, text }) {
+function InfoTag({ icon, text, defaultView = true }) {
   return (
-    <div className={`flex items-center gap-1 text-zinc-200 ${className}`}>
-      <span className="text-base">{icon}</span>
-      <p className="text-sm">{text}</p>
+    <div
+      className={`flex items-center text-zinc-200 ${defaultView ? "gap-1" : "gap-2"}`}
+    >
+      <span className={`${defaultView ? "text-base" : "text-xl"}`}>{icon}</span>
+      <p className={`${defaultView ? "text-sm" : "text-lg"}`}>{text}</p>
     </div>
   );
 }

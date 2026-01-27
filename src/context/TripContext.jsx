@@ -12,7 +12,8 @@ const initialState = {
       date: "12/01/26",
       duration: "3 days",
       rating: 3,
-      description: "Some awful people, but can be a better place.",
+      description:
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae quasi sequi inventore odit tenetur aliquam iste nihil ducimus maiores quos. Modi quia ducimus culpa dolorem a asperiores accusamus. Placeat, repellendus.",
       coordinates: { lat: 20.5937, lng: 78.9629 },
     },
     {

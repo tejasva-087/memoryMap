@@ -15,7 +15,7 @@ async function getPlaceDetails(lat, lng) {
 
     return data;
   } catch (err) {
-    console.error(err);
+    throw new Error(err);
   }
 }
 

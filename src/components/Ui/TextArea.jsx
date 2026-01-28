@@ -1,11 +1,4 @@
-function Input({
-  type = "text",
-  placeholder = "",
-  state,
-  setState,
-  id,
-  label,
-}) {
+function TextArea({ placeholder = "", state, setState, id, label, name }) {
   function handleInputChange(e) {
     setState(e.value);
   }
@@ -15,10 +8,10 @@ function Input({
       <label htmlFor={id} className="text-sm text-zinc-400 ml-3">
         {label}
       </label>
-      <input
+      <textarea
         className="border border-zinc-500 bg-zinc-800 rounded-2xl p-4"
+        name={name}
         id={id}
-        type={type}
         placeholder={placeholder}
         value={state}
         onChange={handleInputChange}
@@ -27,4 +20,4 @@ function Input({
   );
 }
 
-export default Input;
+export default TextArea;

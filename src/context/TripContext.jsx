@@ -3,31 +3,7 @@ import { createContext, useContext, useReducer } from "react";
 const TripContext = createContext();
 
 const initialState = {
-  trips: [
-    {
-      id: "1",
-      countryName: "India",
-      cityName: "Bhopal",
-      countryCode: "in",
-      date: "12/01/26",
-      duration: "3 days",
-      rating: 3,
-      description:
-        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae quasi sequi inventore odit tenetur aliquam iste nihil ducimus maiores quos. Modi quia ducimus culpa dolorem a asperiores accusamus. Placeat, repellendus.",
-      coordinates: { lat: 20.5937, lng: 78.9629 },
-    },
-    {
-      id: "2",
-      countryName: "Bhutan",
-      cityName: "Myanmar",
-      countryCode: "bt",
-      date: "12/01/26",
-      duration: "3 days",
-      rating: 3,
-      description: "Some awful people, but can be a better place.",
-      coordinates: { lat: 51.505, lng: -0.09 },
-    },
-  ],
+  trips: [],
   isLoading: false,
   error: null,
 };
@@ -40,12 +16,18 @@ function reducer(state, action) {
         trips: [...state.trips, action.payload],
       };
     case "trip/remove":
-      console.log("Hello");
-      console.log(state.trips.filter((trip) => trip.id !== action.payload));
       return {
         ...state,
         trips: state.trips.filter((trip) => trip.id !== action.payload),
       };
+    case "trip/loading":
+      return { ...state, isLoading: true };
+
+    case "trip/loaded":
+      return { ...state, isLoading: false };
+
+    case "trip/loadingError":
+      return { ...state, isLoading: false };
     default:
       return state;
   }

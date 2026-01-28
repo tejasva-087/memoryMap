@@ -3,7 +3,8 @@ import Logo from "./Logo";
 import TripList from "../TripCard/TripList";
 
 function SideBar() {
-  const trips = useTrip();
+  const { trips } = useTrip();
+
   return (
     <aside
       className={`bg-zinc-800 text-zinc-100 p-6 flex items-center flex-col`}

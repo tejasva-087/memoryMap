@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./component/pages/HomePage";
 import { TripProvider } from "./context/tripContext";
 import SideBar from "./component/layout/SideBar";
+import AddTripForm from "./component/layout/AddTrip";
 
 function App() {
   const router = createBrowserRouter([
@@ -10,7 +11,7 @@ function App() {
       element: <HomePage />,
       children: [
         { index: true, element: <SideBar /> },
-        { path: "/add", element: <p>Add trip</p> },
+        { path: "/add", element: <AddTripForm /> },
         { path: "/view", element: <p>view trip</p> },
       ],
     },

@@ -8,8 +8,8 @@ type Prop = {
   label: string;
 };
 
-function Input({ id, state, setState, label, placeholder = "" }: Prop) {
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+function TextArea({ id, state, setState, label, placeholder = "" }: Prop) {
+  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
     setState(e.target.value);
   }
 
@@ -18,17 +18,16 @@ function Input({ id, state, setState, label, placeholder = "" }: Prop) {
       <label htmlFor={id} className="text-sm text-zinc-500 dark:text-zinc-300">
         {label}
       </label>
-      <input
+      <textarea
         id={id}
         placeholder={placeholder}
-        type="text"
         value={state}
         onChange={handleChange}
         autoComplete="off"
-        className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring focus:ring-primary transition-all duration-300"
+        className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring focus:ring-primary transition-all duration-300 min-h-32"
       />
     </div>
   );
 }
 
-export default Input;
+export default TextArea;

@@ -9,14 +9,7 @@ import type {
 const initialState: TripState = {
   trips: [
     // {
-    //   id: "12",
-    //   flag: "12",
-    //   countryName: "1232",
-    //   stateName: "21231",
     //   date: "12312",
-    //   duration: "123123",
-    //   description: "q2e12e1",
-    //   images: ["1231", "q21312"],
     //   coordinates: { lat: 123, lng: 123 },
     // },
   ],

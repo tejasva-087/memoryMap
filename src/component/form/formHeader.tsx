@@ -10,7 +10,7 @@ function FormHeader() {
            justify-between"
     >
       <button
-        className="text-3xl"
+        className="text-3xl cursor-pointer"
         onClick={() => {
           navigate("/");
         }}

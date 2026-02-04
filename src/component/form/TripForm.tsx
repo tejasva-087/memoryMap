@@ -2,6 +2,7 @@ import { useState } from "react";
 import Input from "../ui/input/Input";
 import TextArea from "../ui/input/TextArea";
 import ImageUploader from "../ui/input/Image";
+import DatePicker from "../ui/input/DatePicker";
 
 function TripForm() {
   const [countryName, setCountryName] = useState("");
@@ -9,6 +10,7 @@ function TripForm() {
   const [description, setDescription] = useState("");
   const [duration, setDuration] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [date, setDate] = useState<string>("");
 
   console.log(images);
   return (
@@ -47,6 +49,12 @@ function TripForm() {
         label="Upload images"
         images={images}
         setState={setImages}
+      />
+      <DatePicker
+        id="event-date"
+        label="Event Date"
+        date={date}
+        setDate={setDate}
       />
     </form>
   );

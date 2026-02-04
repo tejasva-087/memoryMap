@@ -3,3 +3,21 @@
 @theme {
   --color-primary: #db2a5f;
 }
+
+@layer utilities {
+  .hide-date-icon::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    display: none;
+  }
+
+  .date-muted::-webkit-datetime-edit {
+    text-transform: uppercase;
+  }
+
+  .date-muted::-webkit-datetime-edit-text,
+  .date-muted::-webkit-datetime-edit-month-field,
+  .date-muted::-webkit-datetime-edit-day-field,
+  .date-muted::-webkit-datetime-edit-year-field {
+    color: theme("colors.zinc.500");
+  }
+}

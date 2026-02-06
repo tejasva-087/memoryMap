@@ -24,7 +24,8 @@ function TextArea({ id, state, setState, label, placeholder = "" }: Prop) {
         value={state}
         onChange={handleChange}
         autoComplete="off"
-        className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring focus:ring-primary transition-all duration-300 min-h-32"
+        required={true}
+        className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring focus:ring-primary transition-all duration-300 min-h-32 invalid:border-red-500 focus:invalid:ring-red-200 focus:invalid:border-red-500"
       />
     </div>
   );

@@ -10,7 +10,7 @@ function FormHeader() {
            justify-between"
     >
       <button
-        className="text-3xl cursor-pointer"
+        className="text-3xl cursor-pointer focus:outline-0 focus:ring focus:ring-primary transition-all duration-300 rounded-sm"
         onClick={() => {
           navigate("/");
         }}

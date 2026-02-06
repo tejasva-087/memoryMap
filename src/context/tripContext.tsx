@@ -7,12 +7,7 @@ import type {
 } from "../Types/TripTypes";
 
 const initialState: TripState = {
-  trips: [
-    // {
-    //   date: "12312",
-    //   coordinates: { lat: 123, lng: 123 },
-    // },
-  ],
+  trips: [],
   isLoading: false,
   error: null,
 };

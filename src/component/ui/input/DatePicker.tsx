@@ -1,5 +1,12 @@
-import { ChangeEvent, Dispatch, SetStateAction, useRef } from "react";
-import { CalendarBlank, CalendarBlankIcon } from "@phosphor-icons/react";
+import { CalendarBlankIcon } from "@phosphor-icons/react";
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+  type MouseEvent,
+} from "react";
 
 type Prop = {
   id: string;
@@ -16,8 +23,13 @@ function DatePicker({ id, label, date, setDate }: Prop) {
   }
 
   function openPicker() {
-    inputRef.current?.showPicker(); // 👈 opens native calendar
+    inputRef.current?.showPicker();
     inputRef.current?.focus();
+  }
+
+  function handleWrapperClick(e: MouseEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("button")) return;
+    openPicker();
   }
 
   return (
@@ -26,22 +38,22 @@ function DatePicker({ id, label, date, setDate }: Prop) {
         {label}
       </label>
 
-      <div className="relative">
+      <div className="relative cursor-text" onClick={handleWrapperClick}>
         <input
           ref={inputRef}
           type="date"
           id={id}
+          required
           value={date}
           onChange={handleChange}
           className="
-          date-muted
+            date-custom-style
             w-full p-4 pr-12
             border border-zinc-200 dark:border-zinc-700
             rounded-xl
-            focus:outline-none focus:ring focus:ring-primary
-            transition-all duration-300
-            text-zinc-900 dark:text-zinc-100
             bg-transparent
+            focus:outline-none focus:ring focus:ring-primary
+            transition-all duration-300 invalid:border-red-500 focus:invalid:ring-red-200 focus:invalid:border-red-500
           "
         />
 
@@ -52,7 +64,7 @@ function DatePicker({ id, label, date, setDate }: Prop) {
             absolute right-4 top-1/2 -translate-y-1/2
             text-zinc-400 dark:text-zinc-500
             hover:text-zinc-600 dark:hover:text-zinc-300
-            transition-colors
+             focus:outline-0 focus:ring focus:ring-primary transition-all duration-300 rounded-sm
           "
         >
           <CalendarBlankIcon className="text-2xl" />

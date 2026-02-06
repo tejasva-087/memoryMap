@@ -1,22 +1,31 @@
 import { useRef, type ChangeEvent } from "react";
 import { convertToBase64 } from "../../../services/image";
-import ImageGrid from "../../form/imageGrid";
+import ImageGrid from "../../form/ImageGrid";
 
 type ImageUploaderProps = {
   id: string;
   label: string;
   setState: React.Dispatch<React.SetStateAction<string[]>>;
   images: string[];
+  error?: boolean;
 };
 
-function ImageUploader({ setState, id, label, images }: ImageUploaderProps) {
+function ImageUploader({
+  setState,
+  id,
+  label,
+  images,
+  error,
+}: ImageUploaderProps) {
   const inputEl = useRef<HTMLInputElement>(null);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    console.log(e.target.files);
     const files = Array.from(e.target.files);
     const base64Promises = files.map((file) => convertToBase64(file));
+    if (inputEl.current) {
+      inputEl.current.value = "";
+    }
 
     try {
       const base64Images = (await Promise.all(base64Promises)) as string[];
@@ -31,6 +40,12 @@ function ImageUploader({ setState, id, label, images }: ImageUploaderProps) {
     inputEl.current?.click();
   }
 
+  const btnClass = `p-4 w-full rounded-xl cursor-pointer focus:outline-none transition-all duration-300 mb-2 border ${
+    error
+      ? "border-red-500 focus:ring-red-200"
+      : "border-zinc-200 dark:border-zinc-700 focus:ring-primary"
+  }`;
+
   return (
     <div>
       <input
@@ -43,11 +58,7 @@ function ImageUploader({ setState, id, label, images }: ImageUploaderProps) {
         onChange={handleImageChange}
         className="hidden"
       />
-      <button
-        type="button"
-        onClick={handleBtnClick}
-        className="border border-zinc-200 dark:border-zinc-700 p-4 w-full rounded-xl cursor-pointer ocus:outline-none focus:ring focus:ring-primary transition-all duration-300 mb-4"
-      >
+      <button type="button" onClick={handleBtnClick} className={btnClass}>
         {label}
       </button>
       {images && <ImageGrid images={images} setImages={setState} />}

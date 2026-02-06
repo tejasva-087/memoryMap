@@ -4,20 +4,106 @@
   --color-primary: #db2a5f;
 }
 
-@layer utilities {
-  .hide-date-icon::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    display: none;
+/* ---------------------------- */
+/* INPUT STYLING */
+/* ---------------------------- */
+/* Hide native calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+@layer base {
+  /* Base date input reset (important for Chrome) */
+  input[type="date"].date-custom-style {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
   }
 
-  .date-muted::-webkit-datetime-edit {
+  /* Uppercase DD / MM / YYYY */
+  input[type="date"].date-custom-style::-webkit-datetime-edit {
     text-transform: uppercase;
   }
 
-  .date-muted::-webkit-datetime-edit-text,
-  .date-muted::-webkit-datetime-edit-month-field,
-  .date-muted::-webkit-datetime-edit-day-field,
-  .date-muted::-webkit-datetime-edit-year-field {
-    color: theme("colors.zinc.500");
+  /* PLACEHOLDER — idle */
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-text,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-month-field,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-day-field,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-year-field {
+    color: rgb(161 161 170); /* zinc-400 */
+    -webkit-text-fill-color: rgb(161 161 170);
+  }
+
+  /* PLACEHOLDER — focused (THIS FIXES YOUR ISSUE) */
+  input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-text,
+  input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-month-field,
+  input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-day-field,
+  input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-year-field {
+    color: rgb(161 161 170);
+    -webkit-text-fill-color: rgb(161 161 170);
+  }
+
+  /* Dark mode — idle + focus */
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-text,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-month-field,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-day-field,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-year-field,
+  .dark
+    input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-text,
+  .dark
+    input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-month-field,
+  .dark
+    input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-day-field,
+  .dark
+    input[type="date"].date-custom-style:invalid:focus::-webkit-datetime-edit-year-field {
+    color: rgb(113 113 122); /* zinc-500 */
+    -webkit-text-fill-color: rgb(113 113 122);
+  }
+
+  /* Real value (after date selection) */
+  input[type="date"].date-custom-style:not(:invalid) {
+    color: rgb(244 244 245); /* zinc-100 */
+    -webkit-text-fill-color: rgb(244 244 245);
+  }
+}
+
+/* ---------------------------- */
+/* LOADER STYLING */
+/* ---------------------------- */
+
+.loader {
+  width: 44.8px;
+  height: 44.8px;
+  position: relative;
+  transform: rotate(45deg);
+}
+
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 0 50%;
+  background: #0000;
+  background-image: radial-gradient(
+    circle 11.2px at 50% 50%,
+    #0000 94%,
+    #db2a5f
+  );
+}
+
+.loader:after {
+  animation: pulse-ytk0dhmd 1s infinite;
+  transform: perspective(336px) translateZ(0px);
+}
+
+@keyframes pulse-ytk0dhmd {
+  to {
+    transform: perspective(336px) translateZ(168px);
+    opacity: 0;
   }
 }

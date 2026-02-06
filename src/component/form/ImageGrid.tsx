@@ -14,15 +14,15 @@ function ImageGrid({ images, setImages }: Props) {
   }
 
   return (
-    <ul className="flex gap-2">
+    <ul className="grid grid-cols-8 gap-1">
       {images.map((image, i) => (
         <li
           key={i}
-          className="w-12 h-12 border border-zinc-400 rounded-lg overflow-hidden relative"
+          className="h-12 w-12 border border-zinc-400 rounded-lg overflow-hidden relative"
         >
-          <img src={image} alt="Uploaded content" />
+          <img src={image} alt="Uploaded content" className="brightness-25" />
           <button
-            className="absolute top-1 right-1"
+            className="absolute top-1 right-1 focus:outline-0 focus:ring focus:ring-primary transition-all duration-300 rounded-sm"
             onClick={(e) => handleBtnClick(e, i)}
           >
             <X />

@@ -1,7 +1,6 @@
 import { CalendarBlankIcon } from "@phosphor-icons/react";
 import {
   useRef,
-  useState,
   type ChangeEvent,
   type Dispatch,
   type SetStateAction,
@@ -19,7 +18,24 @@ function DatePicker({ id, label, date, setDate }: Prop) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setDate(e.target.value);
+    const rawValue = e.target.value; // "YYYY-MM-DD"
+    if (!rawValue) return setDate("");
+
+    const [year, month, day] = rawValue.split("-").map(Number);
+    const dateObj = new Date(year, month - 1, day);
+
+    const parts = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    }).formatToParts(dateObj);
+
+    // parts is an array: [{type: 'month', value: 'Feb'}, {type: 'day', value: '07'}...]
+    const m = parts.find((p) => p.type === "month")?.value;
+    const d = parts.find((p) => p.type === "day")?.value;
+    const y = parts.find((p) => p.type === "year")?.value;
+
+    setDate(`${m}, ${d} ${y}`);
   }
 
   function openPicker() {
@@ -44,7 +60,7 @@ function DatePicker({ id, label, date, setDate }: Prop) {
           type="date"
           id={id}
           required
-          value={date}
+          value={date ? new Date(date).toISOString().split("T")[0] : ""}
           onChange={handleChange}
           className="
             date-custom-style

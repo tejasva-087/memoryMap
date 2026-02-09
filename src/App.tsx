@@ -3,6 +3,7 @@ import HomePage from "./component/pages/HomePage";
 import { TripProvider } from "./context/tripContext";
 import SideBar from "./component/layout/SideBar";
 import AddTripForm from "./component/layout/AddTrip";
+import ViewTrip from "./component/layout/ViewTrip";
 
 function App() {
   const router = createBrowserRouter([
@@ -12,7 +13,10 @@ function App() {
       children: [
         { index: true, element: <SideBar /> },
         { path: "/add", element: <AddTripForm /> },
-        { path: "/view", element: <p>view trip</p> },
+        {
+          path: "/view/:id",
+          element: <ViewTrip key={window.location.pathname} />,
+        },
       ],
     },
   ]);

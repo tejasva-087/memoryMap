@@ -4,11 +4,10 @@ import "leaflet/dist/leaflet.css";
 
 import { fetchUserLocation } from "../../services/location";
 import MapEvents from "./MapEvents";
+import MapMarkers from "./MapMarkers";
 
 function WorldMap() {
   const [isLoading, setIsLoading] = useState(false);
-  // TODO: provide a notification bar fro this error (maybe error context)
-  const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(
     null,
   );
@@ -22,7 +21,6 @@ function WorldMap() {
         setIsLoading(false);
       } catch (err) {
         console.error(err);
-        setError("Something went wrong while fetching your location.");
       } finally {
         setIsLoading(false);
       }
@@ -35,7 +33,8 @@ function WorldMap() {
 
   return (
     <MapContainer
-      center={userLocation || [22.71, 75.87]}
+      key={userLocation ? userLocation.join(",") : "default"}
+      center={userLocation || [43.7711, 11.2486]}
       zoom={13}
       zoomControl={false}
       style={{ height: "100%", width: "100%", cursor: "default" }}
@@ -45,6 +44,7 @@ function WorldMap() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <MapEvents />
+      <MapMarkers />
     </MapContainer>
   );
 }

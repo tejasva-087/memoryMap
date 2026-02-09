@@ -12,7 +12,7 @@ import DatePicker from "../ui/input/DatePicker";
 import { fetchLocationDetails } from "../../services/location";
 
 function TripForm() {
-  const { dispatch } = useTrip();
+  const { trips, dispatch } = useTrip();
   const [error, setError] = useState<string | null>(null);
 
   const [params] = useSearchParams();
@@ -29,6 +29,7 @@ function TripForm() {
   const [duration, setDuration] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [date, setDate] = useState<string>("");
+  const [id, setId] = useState<string>("");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -51,6 +52,7 @@ function TripForm() {
     dispatch({
       type: "trip/add",
       payload: {
+        id: `${id}${trips.length}`,
         countryName,
         stateName,
         description,
@@ -78,6 +80,7 @@ function TripForm() {
         setCountryName(data.address.country || "");
         setStateName(data.address.state || "");
         setFlag(data.address.flag || "");
+        setId(data.address.country_code || "");
       } catch (err) {
         console.error(err);
       } finally {

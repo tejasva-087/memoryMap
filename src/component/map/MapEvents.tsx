@@ -9,8 +9,11 @@ function MapEvents() {
 
   useMapEvent("click", (e: LeafletMouseEvent) => {
     const { lat, lng } = e.latlng;
+    map.flyTo([lat, lng], map.getZoom(), {
+      animate: true,
+      duration: 0.6,
+    });
     navigate(`/add?lat=${lat}&lng=${lng}`);
-    map.setView([lat, lng]);
   });
 
   return null;

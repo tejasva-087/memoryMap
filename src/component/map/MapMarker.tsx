@@ -24,11 +24,13 @@ function MapMarker({ trip }: Prop) {
       eventHandlers={{
         click: (e) => {
           e.originalEvent.stopPropagation();
-          map.flyTo(markerPosition, 5, {
+          map.flyTo(markerPosition, map.getZoom(), {
             animate: true,
-            duration: 0.6,
+            duration: 0.3,
           });
-          navigate(`/view/${id}`);
+          navigate(
+            `/view/${id}?lat=${markerPosition[0]}&lng=${markerPosition[1]}`,
+          );
         },
       }}
     >

@@ -1,12 +1,13 @@
 import { useTrip } from "../../context/tripContext";
 import Logo from "../ui/Logo";
+import TripList from "../sideBar/TripList";
 
 function SideBar() {
   const { trips } = useTrip();
 
   return (
     <aside className="h-full w-full p-5">
-      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 flex flex-col gap-4">
+      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 flex flex-col gap-4 overflow-scroll">
         <header
           className="flex items-center
          justify-center"
@@ -19,7 +20,7 @@ function SideBar() {
               Your map looks a little lonely. Tap anywhere on the map to begin.
             </p>
           ) : (
-            <></>
+            <TripList />
           )}
         </main>
       </div>

@@ -20,7 +20,7 @@ function HomePage() {
            max-[768px]:top-auto max-[768px]:bottom-0 
            max-[768px]:w-150 max-[768px]:h-[50vh]
            max-[425px]:h-auto
-           overflow-scroll max-[425px]:w-screen"
+           overflow-scroll max-[425px]:w-screen transition-all duration-300"
         style={{ zIndex: 9999 }}
       >
         <Outlet />

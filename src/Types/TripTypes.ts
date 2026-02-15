@@ -28,7 +28,8 @@ export type TripAction =
   | { type: "trip/remove"; payload: string }
   | { type: "trip/load" }
   | { type: "trip/success" }
-  | { type: "trip/error"; payload: string };
+  | { type: "trip/error"; payload: string }
+  | { type: "trip/readDB"; payload: Trip[] };
 
 export interface TripContextType extends TripState {
   dispatch: Dispatch<TripAction>;

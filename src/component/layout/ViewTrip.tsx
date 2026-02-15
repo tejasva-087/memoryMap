@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 
 import { useTrip } from "../../context/tripContext";
 
@@ -10,36 +10,16 @@ import ImageGallery from "../ui/ImageGallery";
 function ViewTrip() {
   const { id } = useParams();
   const { trips } = useTrip();
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [id]);
 
   const trip = useMemo(() => {
     return trips.find((t) => String(t.id) === String(id));
   }, [trips, id]);
 
-  if (isLoading) {
-    return (
-      <aside className="h-full w-full p-5 flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center gap-4 bg-zinc-900 w-full h-full rounded-3xl">
-          <div className="w-12 h-12 border-4 border-zinc-700 border-t-primary rounded-full animate-spin"></div>
-          <p className="text-zinc-400 animate-pulse font-medium">
-            Fetching trip details...
-          </p>
-        </div>
-      </aside>
-    );
+  if (!trip) {
+    navigate("/");
+    return null;
   }
-
-  if (!trip) navigate("/");
 
   const { countryName, stateName, flag, date, duration, description, images } =
     trip;

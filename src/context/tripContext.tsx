@@ -1,10 +1,17 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  type ReactNode,
+} from "react";
 
 import type {
   TripAction,
   TripContextType,
   TripState,
 } from "../Types/TripTypes";
+import { getAllTrips } from "../services/indexDB";
 
 const initialState: TripState = {
   trips: [],
@@ -29,6 +36,8 @@ function reducer(state: TripState, action: TripAction): TripState {
       return { ...state, isLoading: false };
     case "trip/error":
       return { ...state, error: action.payload, isLoading: false };
+    case "trip/readDB":
+      return { ...state, trips: action.payload, isLoading: false };
     default:
       return state;
   }
@@ -41,6 +50,21 @@ function TripProvider({ children }: { children: ReactNode }) {
     reducer,
     initialState,
   );
+
+  useEffect(() => {
+    dispatch({ type: "trip/load" });
+    async function getTripData() {
+      try {
+        const data = await getAllTrips();
+        dispatch({ type: "trip/readDB", payload: data });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    getTripData();
+  }, []);
+
   return (
     <TripContext.Provider value={{ trips, isLoading, error, dispatch }}>
       {children}

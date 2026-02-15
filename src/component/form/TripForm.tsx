@@ -10,6 +10,7 @@ import TextArea from "../ui/input/TextArea";
 import ImageUploader from "../ui/input/Image";
 import DatePicker from "../ui/input/DatePicker";
 import { fetchLocationDetails } from "../../services/location";
+import { saveTrip } from "../../services/indexDB";
 
 function TripForm() {
   const { trips, dispatch } = useTrip();
@@ -31,7 +32,7 @@ function TripForm() {
   const [date, setDate] = useState<string>("");
   const [id, setId] = useState<string>("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     let validationError: string | null = null;
@@ -49,22 +50,26 @@ function TripForm() {
 
     if (validationError) return;
 
+    const trip = {
+      id: `${id}${trips.length}`,
+      countryName,
+      stateName,
+      description,
+      duration,
+      images,
+      date,
+      flag,
+      coordinates: {
+        lat,
+        lng,
+      },
+    };
+
+    await saveTrip(trip);
+
     dispatch({
       type: "trip/add",
-      payload: {
-        id: `${id}${trips.length}`,
-        countryName,
-        stateName,
-        description,
-        duration,
-        images,
-        date,
-        flag,
-        coordinates: {
-          lat,
-          lng,
-        },
-      },
+      payload: trip,
     });
 
     navigate("/");

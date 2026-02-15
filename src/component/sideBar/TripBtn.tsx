@@ -1,7 +1,6 @@
 import {
   CalendarDotsIcon,
   ClockIcon,
-  DotIcon,
   DotOutlineIcon,
   TrashIcon,
 } from "@phosphor-icons/react";
@@ -36,7 +35,10 @@ function TripBtn({ id, countryName, stateName, date, duration, flag }: Prop) {
         </div>
         <button
           className="text-xl cursor-pointer"
-          onClick={() => dispatch({ type: "trip/remove", payload: id })}
+          onClick={(e) => {
+            e.stopPropagation();
+            dispatch({ type: "trip/remove", payload: id });
+          }}
         >
           <TrashIcon weight="fill" />
         </button>

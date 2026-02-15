@@ -7,6 +7,7 @@ import {
 import { useTrip } from "../../context/tripContext";
 import MetaPreview from "../ui/MetaPreview";
 import { useNavigate } from "react-router-dom";
+import type { Coordinates } from "../../Types/TripTypes";
 
 type Prop = {
   id: string;
@@ -15,16 +16,27 @@ type Prop = {
   date: string;
   duration: string;
   flag: string;
+  coordinates: Coordinates;
 };
 
-function TripBtn({ id, countryName, stateName, date, duration, flag }: Prop) {
+function TripBtn({
+  id,
+  countryName,
+  stateName,
+  date,
+  duration,
+  flag,
+  coordinates,
+}: Prop) {
   const { dispatch } = useTrip();
   const navigate = useNavigate();
 
   return (
     <li
       className="p-6 bg-zinc-800 rounded-xl flex flex-col gap-4 cursor-pointer"
-      onClick={() => navigate(`/view/${id}`)}
+      onClick={() => {
+        navigate(`/view/${id}?lat=${coordinates.lat}&lng=${coordinates.lng}`);
+      }}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

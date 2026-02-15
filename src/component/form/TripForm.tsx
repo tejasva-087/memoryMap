@@ -4,13 +4,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { WarningIcon } from "@phosphor-icons/react";
 
 import { useTrip } from "../../context/tripContext";
+import { fetchLocationDetails } from "../../services/location";
 
 import Input from "../ui/input/Input";
 import TextArea from "../ui/input/TextArea";
 import ImageUploader from "../ui/input/Image";
 import DatePicker from "../ui/input/DatePicker";
-import { fetchLocationDetails } from "../../services/location";
-import { saveTrip } from "../../services/indexDB";
 
 function TripForm() {
   const { trips, dispatch } = useTrip();
@@ -50,26 +49,22 @@ function TripForm() {
 
     if (validationError) return;
 
-    const trip = {
-      id: `${id}${trips.length}`,
-      countryName,
-      stateName,
-      description,
-      duration,
-      images,
-      date,
-      flag,
-      coordinates: {
-        lat,
-        lng,
-      },
-    };
-
-    await saveTrip(trip);
-
     dispatch({
       type: "trip/add",
-      payload: trip,
+      payload: {
+        id: `${id}${trips.length}`,
+        countryName,
+        stateName,
+        description,
+        duration,
+        images,
+        date,
+        flag,
+        coordinates: {
+          lat,
+          lng,
+        },
+      },
     });
 
     navigate("/");
@@ -87,7 +82,7 @@ function TripForm() {
         setFlag(data.address.flag || "");
         setId(data.address.country_code || "");
       } catch (err) {
-        console.error(err);
+        console.log(err);
       } finally {
         setIsLoading(false);
       }
@@ -104,67 +99,69 @@ function TripForm() {
     );
 
   return (
-    <form
-      className="flex flex-col justify-between h-full gap-8"
-      onSubmit={(e) => handleSubmit(e)}
-    >
-      <div className="flex flex-col gap-4">
-        <Input
-          id="country"
-          state={countryName}
-          setState={setCountryName}
-          label="Country"
-          placeholder="eg: Japan, India, Germany..."
-        />
+    <>
+      <form
+        className="flex flex-col justify-between h-full gap-8"
+        onSubmit={(e) => handleSubmit(e)}
+      >
+        <div className="flex flex-col gap-4">
+          <Input
+            id="country"
+            state={countryName}
+            setState={setCountryName}
+            label="Country"
+            placeholder="eg: Japan, India, Germany..."
+          />
 
-        <Input
-          id="state"
-          state={stateName}
-          setState={setStateName}
-          label="State"
-          placeholder="eg: California, New York, Texas..."
-        />
-        <DatePicker
-          id="visit-date"
-          label="Visit date"
-          date={date}
-          setDate={setDate}
-        />
-        <Input
-          id="duration"
-          state={duration}
-          setState={setDuration}
-          label="Duration"
-          placeholder="eg: 3 days"
-        />
-        <TextArea
-          id="description"
-          state={description}
-          setState={setDescription}
-          label="Description"
-          placeholder="eg: The night near the beach..."
-        />
+          <Input
+            id="state"
+            state={stateName}
+            setState={setStateName}
+            label="State"
+            placeholder="eg: California, New York, Texas..."
+          />
+          <DatePicker
+            id="visit-date"
+            label="Visit date"
+            date={date}
+            setDate={setDate}
+          />
+          <Input
+            id="duration"
+            state={duration}
+            setState={setDuration}
+            label="Duration"
+            placeholder="eg: 3 days"
+          />
+          <TextArea
+            id="description"
+            state={description}
+            setState={setDescription}
+            label="Description"
+            placeholder="eg: The night near the beach..."
+          />
 
-        <ImageUploader
-          id="upload-image"
-          label="Upload images"
-          images={images}
-          setState={setImages}
-          error={images.length === 0 ? true : false}
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        {error && (
-          <p className="text-red-500 flex items-center gap-1">
-            <WarningIcon />
-            {error}
-          </p>
-        )}
-        <button className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white focus:outline-0">
-          Submit
-        </button>
-      </div>
-    </form>
+          <ImageUploader
+            id="upload-image"
+            label="Upload images"
+            images={images}
+            setState={setImages}
+            error={images.length === 0 ? true : false}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          {error && (
+            <p className="text-red-500 flex items-center gap-1">
+              <WarningIcon />
+              {error}
+            </p>
+          )}
+          <button className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white focus:outline-0">
+            Submit
+          </button>
+        </div>
+      </form>
+    </>
   );
 }
 

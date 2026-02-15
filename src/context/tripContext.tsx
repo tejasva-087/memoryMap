@@ -11,7 +11,7 @@ import type {
   TripContextType,
   TripState,
 } from "../Types/TripTypes";
-import { getAllTrips } from "../services/indexDB";
+import { deleteTrip, getAllTrips, saveTrip } from "../services/indexDB";
 
 const initialState: TripState = {
   trips: [],
@@ -22,9 +22,10 @@ const initialState: TripState = {
 function reducer(state: TripState, action: TripAction): TripState {
   switch (action.type) {
     case "trip/add":
+      saveTrip(action.payload);
       return { ...state, trips: [...state.trips, action.payload] };
-
     case "trip/remove":
+      deleteTrip(action.payload);
       return {
         ...state,
         trips: state.trips.filter((trip) => trip.id !== action.payload),

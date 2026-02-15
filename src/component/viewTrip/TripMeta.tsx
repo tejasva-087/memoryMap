@@ -8,7 +8,7 @@ type Prop = {
 
 function TripMeta({ date, duration }: Prop) {
   return (
-    <ul className="flex items-center gap-4 border-b border-t border-zinc-200 dark:border-zinc-500 pb-2">
+    <ul className="flex items-center gap-4 border-b border-t border-zinc-200 dark:border-zinc-500 pb-2 max-[768px]:flex-col max-[768px]:items-start">
       <li>
         <MetaPreview
           heading="visiting date"

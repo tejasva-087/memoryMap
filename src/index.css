@@ -4,6 +4,12 @@
   --color-primary: #db2a5f;
 }
 
+html {
+  @media (min-width: 112.5em) {
+    font-size: 125%;
+  }
+}
+
 /* ---------------------------- */
 /* INPUT STYLING */
 /* ---------------------------- */

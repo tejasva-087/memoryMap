@@ -16,6 +16,7 @@ function TripList() {
           date={trip.date}
           duration={trip.duration}
           flag={trip.flag}
+          coordinates={trip.coordinates}
         />
       ))}
     </ul>

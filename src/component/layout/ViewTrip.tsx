@@ -25,15 +25,15 @@ function ViewTrip() {
     trip;
 
   return (
-    <aside className="h-full w-full p-5">
-      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 dark:border-zinc-800 flex flex-col gap-4 overflow-y-auto">
+    <aside className="h-full w-full p-5 max-[425px]:p-0">
+      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 flex flex-col gap-4 overflow-scroll max-[425px]:h-svh max-[425px]:border-0 max-[425px]:rounded-none">
         <TripHeader
           countryName={countryName}
           stateName={stateName}
           flag={flag}
         />
         <TripMeta date={date} duration={duration} />
-        <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+        <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed wrap-break-word">
           {description}
         </p>
         <ImageGallery images={images} countryName={countryName} />

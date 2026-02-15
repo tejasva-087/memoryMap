@@ -34,7 +34,7 @@ function WorldMap() {
   return (
     <MapContainer
       key={userLocation ? userLocation.join(",") : "default"}
-      center={userLocation || [43.7711, 11.2486]}
+      center={userLocation || [22.43, 75.5]}
       zoom={5}
       zoomControl={false}
       style={{ height: "100%", width: "100%", cursor: "default" }}

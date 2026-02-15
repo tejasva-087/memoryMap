@@ -7,7 +7,7 @@ function SideBar() {
 
   return (
     <aside className="h-full w-full p-5">
-      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 flex flex-col gap-4 overflow-scroll">
+      <div className="bg-zinc-50 dark:bg-zinc-900 h-full rounded-3xl p-8 border border-zinc-200 flex flex-col gap-4 overflow-scroll max-[425px]:hidden">
         <header
           className="flex items-center
          justify-center"

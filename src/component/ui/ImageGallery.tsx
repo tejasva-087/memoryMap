@@ -21,7 +21,7 @@ function ImageGallery({ images, countryName }: Prop) {
       <img
         src={images[mainImage]}
         alt={`User's memory of ${countryName}`}
-        className="h-64 object-cover"
+        className="w-full h-100 object-contain"
       />
       <ul className="grid grid-cols-6 gap-2">
         {images.map((image, i) => (
@@ -32,8 +32,8 @@ function ImageGallery({ images, countryName }: Prop) {
               key={i}
               className={
                 i === mainImage
-                  ? "rounded-lg h-12 w-full object-cover border-2 border-primary"
-                  : "rounded-lg h-12 w-full object-cover"
+                  ? "rounded-lg h-12 w-full object-contain border-2 border-primary"
+                  : "rounded-lg h-12 w-full object-contain"
               }
               onClick={() => setMainImage(i)}
             />

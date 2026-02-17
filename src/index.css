@@ -9,12 +9,12 @@
   --color-primary-shade-1: #6e1631;
 
   --color-black-1: var(--color-zinc-900);
-  --color-black-2: var(--color-zinc-800);
-  --color-black-3: var(--color-zinc-700);
+  --color-black-2: var(--color-zinc-700);
+  --color-black-3: var(--color-zinc-500);
 
   --color-white-1: var(--color-zinc-50);
-  --color-black-2: #var(--color-zinc-100);
-  --color-black-3: #var(--color-zinc-200);
+  --color-white-2: var(--color-zinc-100);
+  --color-white-3: var(--color-zinc-200);
 
   --default-font-family: "Quicksand", sans-serif;
 }

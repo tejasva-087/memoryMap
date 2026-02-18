@@ -10,6 +10,7 @@ type ImageUploaderProps = {
   setImages: React.Dispatch<React.SetStateAction<string[]>>;
   images: string[];
   error?: boolean;
+  className?: string;
 };
 
 function ImageInput({
@@ -18,6 +19,7 @@ function ImageInput({
   label,
   images,
   error,
+  className = "",
 }: ImageUploaderProps) {
   const inputEl = useRef<HTMLInputElement>(null);
 
@@ -47,7 +49,7 @@ function ImageInput({
     : `p-4 w-full rounded-xl cursor-pointer focus:outline-none focus:ring focus:ring-primary transition-all duration-300 mb-2 border border-zinc-200 dark:border-zinc-700`;
 
   return (
-    <div>
+    <div className={`${className}`}>
       <input
         ref={inputEl}
         type="file"

@@ -6,15 +6,23 @@ type Prop = {
   text: string;
   setText: Dispatch<SetStateAction<string>>;
   label: string;
+  className?: string;
 };
 
-function TextArea({ id, text, setText, label, placeholder = "" }: Prop) {
+function TextArea({
+  id,
+  text,
+  setText,
+  label,
+  placeholder = "",
+  className = "",
+}: Prop) {
   function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
     setText(e.target.value);
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${className}`}>
       <label htmlFor={id} className="text-sm text-zinc-500 dark:text-zinc-300">
         {label}
       </label>

@@ -27,14 +27,17 @@ function AddTripForm() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   function clearStates() {
+    setFlags("");
     setCountryName("");
     setStateName("");
     setDate("");
     setDuration("");
     setDescription("");
     setImages([]);
+    setError("");
   }
 
   useEffect(() => {
@@ -55,6 +58,7 @@ function AddTripForm() {
         setFlags(locationDetails.address.flag || "");
       } catch (err) {
         console.error(err);
+        setError("Failed to create trip. Please try again.");
       } finally {
         setIsLoading(false);
       }
@@ -85,7 +89,6 @@ function AddTripForm() {
     } catch (err) {
       console.error(err);
     } finally {
-      clearStates();
       setIsSubmitting(false);
     }
   }
@@ -98,8 +101,25 @@ function AddTripForm() {
     );
   }
 
+  if (error)
+    return (
+      <div className="flex flex-col">
+        <p className="text-red-500 text-center text-lg">{error}</p>
+        <p className="text-black-3 dark:text-white-3 text-center text-sm">or</p>
+        <button
+          className="text-primary underline"
+          onClick={() => navigate("/")}
+        >
+          Go back to home page
+        </button>
+      </div>
+    );
+
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 md:grid md:grid-cols-2"
+    >
       <InputField
         id="country-name"
         label="Country"
@@ -133,6 +153,7 @@ function AddTripForm() {
         placeholder="Anything about the trip you want to remember..."
         text={description}
         setText={setDescription}
+        className="md:col-span-2"
       />
       <ImageInput
         setImages={setImages}
@@ -140,9 +161,10 @@ function AddTripForm() {
         id="image-input"
         label="Upload image"
         error={images.length === 0 ? true : false}
+        className="md:col-span-2"
       />
       <button
-        className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white-1 focus:outline-0"
+        className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white-1 focus:outline-0 md:col-span-2"
         type="submit"
         disabled={isSubmitting ? true : false}
       >

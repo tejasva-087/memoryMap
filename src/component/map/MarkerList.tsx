@@ -4,7 +4,6 @@ import MapMarker from "./MapMarker";
 
 function MarkerList() {
   const { trips } = useTrip();
-  console.log(trips);
 
   return (
     <>

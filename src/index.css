@@ -18,3 +18,82 @@
 
   --default-font-family: "Quicksand", sans-serif;
 }
+
+/* ---------------------------- */
+/* INPUT STYLING                */
+/* ---------------------------- */
+
+/* Hide native calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+@layer base {
+  /* Make native date text invisible (we use the overlay span instead) */
+  input[type="date"].date-custom-style {
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+  }
+
+  /* Placeholder fields — empty/invalid state */
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-text,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-month-field,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-day-field,
+  input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-year-field {
+    -webkit-text-fill-color: var(--color-black-3); /* zinc-500 */
+  }
+
+  /* Dark mode placeholder */
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-text,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-month-field,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-day-field,
+  .dark
+    input[type="date"].date-custom-style:invalid::-webkit-datetime-edit-year-field {
+    -webkit-text-fill-color: var(--color-black-2); /* zinc-700 */
+  }
+}
+
+/* LOADERS */
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  position: relative;
+  transform: rotate(45deg);
+}
+.loader:before,
+.loader:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 0 50%;
+  background: var(--color-primary);
+  -webkit-mask: radial-gradient(circle 10px at 50% 50%, #0000 94%, #000);
+}
+.loader:after {
+  animation: l6 1s infinite;
+  transform: perspective(300px) translateZ(0px);
+}
+@keyframes l6 {
+  to {
+    transform: perspective(300px) translateZ(150px);
+    opacity: 0;
+  }
+}
+
+/* MAP */
+@media (prefers-color-scheme: dark) {
+  .leaflet-container {
+    background-color: #000 !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .leaflet-container {
+    background-color: var(--color-white-1) !important;
+  }
+}

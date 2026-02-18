@@ -22,18 +22,12 @@ function BottomSheet({ title, children, titleStyles = "" }: BottomSheetProp) {
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-100 bg-white-2 dark:bg-black-2" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 flex flex-col rounded-t-4xl bg-white-1 dark:bg-black-1 h-full transition-transform duration-500 ease-in-out z-9999 border-t border-l border-r border-white-3 dark:border-0">
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 flex flex-col rounded-t-4xl bg-white-1 dark:bg-black-1 h-full transition-transform duration-500 ease-in-out z-9999 border-t border-l border-r border-white-3 dark:border-0 outline-0 focus:outline-none">
           <div className="mx-auto mt-4 h-1.5 w-18 shrink-0 rounded-full bg-white-3 dark:bg-black-2" />
 
-          <div className="flex-1 p-6">
-            <div className="max-w-md mx-auto">
-              <Drawer.Title
-                className={`text-xl font-medium mb-2 ${titleStyles}`}
-              >
-                {title}
-              </Drawer.Title>
-              {children}
-            </div>
+          <div className="flex-1 pt-4">
+            <Drawer.Title className={`${titleStyles}`}>{title}</Drawer.Title>
+            <div className="h-[70vh] overflow-scroll p-6">{children}</div>
           </div>
         </Drawer.Content>
       </Drawer.Portal>

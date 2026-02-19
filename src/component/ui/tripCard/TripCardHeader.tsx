@@ -24,7 +24,10 @@ function TripCardHeader({
         stateName={stateName}
         flag={flag}
       />
-      <button className="text-2xl" onClick={() => removeTrip(id)}>
+      <button
+        className="text-2xl text-black-3 dark:text-white-3"
+        onClick={() => removeTrip(id)}
+      >
         <TrashIcon weight="fill" />
       </button>
     </div>

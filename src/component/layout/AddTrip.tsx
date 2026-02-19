@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { useTrip } from "../../context/tripContext";
 import { fetchLocationDetails } from "../../services/location";
@@ -8,8 +8,9 @@ import DatePicker from "../ui/input/DatePicker";
 import InputField from "../ui/input/InputField";
 import TextArea from "../ui/input/TextArea";
 import ImageInput from "../ui/input/ImageInput";
+import { CaretLeftIcon } from "@phosphor-icons/react";
 
-function AddTripForm() {
+function AddTrip() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const lat = searchParams.get("lat");
@@ -70,9 +71,10 @@ function AddTripForm() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     setIsSubmitting(true);
     e.preventDefault();
+    const id = crypto.randomUUID();
     try {
       await createTrip({
-        id: crypto.randomUUID(),
+        id,
         flag,
         countryName,
         stateName,
@@ -85,7 +87,7 @@ function AddTripForm() {
           lng: lng ? +lng : 0,
         },
       });
-      navigate(`/view/id?lat=${lat}&lng=${lng}`);
+      navigate(`/view/${id}?lat=${lat}&lng=${lng}`);
     } catch (err) {
       console.error(err);
     } finally {
@@ -103,75 +105,82 @@ function AddTripForm() {
 
   if (error)
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col items-center justify-center gap-2">
         <p className="text-red-500 text-center text-lg">{error}</p>
-        <p className="text-black-3 dark:text-white-3 text-center text-sm">or</p>
-        <button
-          className="text-primary underline"
-          onClick={() => navigate("/")}
-        >
-          Go back to home page
-        </button>
+        <Link to="/" className="border-b border-primary pb-0.05 text-primary">
+          Go back
+        </Link>
       </div>
     );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4 md:grid md:grid-cols-2"
-    >
-      <InputField
-        id="country-name"
-        label="Country"
-        placeholder="eg: India, Germany, Japan..."
-        input={countryName}
-        setInput={setCountryName}
-      />
-      <InputField
-        id="state-name"
-        label="State"
-        placeholder="eg: California, New York, Texas..."
-        input={stateName}
-        setInput={setStateName}
-      />
-      <DatePicker
-        date={date}
-        setDate={setDate}
-        id="date-picker"
-        label="Visit date"
-      />
-      <InputField
-        id="duration"
-        label="Duration"
-        placeholder="eg: 3 days"
-        input={duration}
-        setInput={setDuration}
-      />
-      <TextArea
-        id="description"
-        label="Description"
-        placeholder="Anything about the trip you want to remember..."
-        text={description}
-        setText={setDescription}
-        className="md:col-span-2"
-      />
-      <ImageInput
-        setImages={setImages}
-        images={images}
-        id="image-input"
-        label="Upload image"
-        error={images.length === 0 ? true : false}
-        className="md:col-span-2"
-      />
-      <button
-        className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white-1 focus:outline-0 md:col-span-2"
-        type="submit"
-        disabled={isSubmitting ? true : false}
+    <div>
+      <div className="relative mb-6 md:mb-8">
+        <button
+          className="text-2xl absolute left-0 top-1/2 -translate-y-1/2 cursor-pointer focus:ring focus:ring-white-1 focus:outline-0 rounded-full p-1"
+          onClick={() => navigate("/")}
+        >
+          <CaretLeftIcon weight="bold" />
+        </button>
+        <h3 className="text-2xl text-center font-bold">Add trip</h3>
+      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 md:grid md:grid-cols-2"
       >
-        Add trip
-      </button>
-    </form>
+        <InputField
+          id="country-name"
+          label="Country"
+          placeholder="eg: India, Germany, Japan..."
+          input={countryName}
+          setInput={setCountryName}
+        />
+        <InputField
+          id="state-name"
+          label="State"
+          placeholder="eg: California, New York, Texas..."
+          input={stateName}
+          setInput={setStateName}
+        />
+        <DatePicker
+          date={date}
+          setDate={setDate}
+          id="date-picker"
+          label="Visit date"
+        />
+        <InputField
+          id="duration"
+          label="Duration"
+          placeholder="eg: 3 days"
+          input={duration}
+          setInput={setDuration}
+        />
+        <TextArea
+          id="description"
+          label="Description"
+          placeholder="Anything about the trip you want to remember..."
+          text={description}
+          setText={setDescription}
+          className="md:col-span-2"
+        />
+        <ImageInput
+          setImages={setImages}
+          images={images}
+          id="image-input"
+          label="Upload image"
+          error={images.length === 0 ? true : false}
+          className="md:col-span-2"
+        />
+        <button
+          className="bg-primary p-4 w-full rounded-xl cursor-pointer focus:ring focus:ring-white-1 focus:outline-0 md:col-span-2"
+          type="submit"
+          disabled={isSubmitting ? true : false}
+        >
+          Add trip
+        </button>
+      </form>
+    </div>
   );
 }
 
-export default AddTripForm;
+export default AddTrip;

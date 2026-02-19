@@ -1,10 +1,14 @@
 import { useTrip } from "../../context/tripContext";
+import Logo from "../ui/Logo";
 import TripCard from "../ui/tripCard/TripCard";
 
 function SideBar() {
   const { trips } = useTrip();
   return (
-    <div className="">
+    <div className="flex flex-col gap-6">
+      <div className="m-auto">
+        <Logo />
+      </div>
       {trips.length === 0 ? (
         <p className="text-center text-black-3 dark:text-white-3 w-2/3 m-auto">
           Your map looks a little lonely. Tap anywhere on the map to begin.

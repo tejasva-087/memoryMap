@@ -1,5 +1,5 @@
 import { type MouseEvent } from "react";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 
 type Props = {
   images: string[];
@@ -14,7 +14,7 @@ function ImageGrid({ images, setImages }: Props) {
   }
 
   return (
-    <ul className="grid grid-cols-8 gap-1">
+    <ul className="flex flex-wrap gap-1 mt-2">
       {images.map((image, i) => (
         <li
           key={i}
@@ -25,7 +25,7 @@ function ImageGrid({ images, setImages }: Props) {
             className="absolute top-1 right-1 focus:outline-0 focus:ring focus:ring-primary transition-all duration-300 rounded-sm"
             onClick={(e) => handleBtnClick(e, i)}
           >
-            <X />
+            <XIcon />
           </button>
         </li>
       ))}

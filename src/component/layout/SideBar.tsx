@@ -24,6 +24,7 @@ function SideBar() {
                 stateName={trip.stateName}
                 flag={trip.flag}
                 id={trip.id}
+                coordinates={trip.coordinates}
               />
             );
           })}

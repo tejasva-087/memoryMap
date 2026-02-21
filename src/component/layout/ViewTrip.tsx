@@ -4,7 +4,7 @@ import { useTrip } from "../../context/tripContext";
 import { CaretLeftIcon } from "@phosphor-icons/react";
 import PlaceDetails from "../ui/PlaceDetail";
 import TripCardMeta from "../ui/tripCard/TripCardMeta";
-import ImageCarousel from "../ui/ImageCarousel";
+import ImageGallery from "../ui/ImageGallery";
 
 function ViewTrip() {
   const { id } = useParams();
@@ -25,10 +25,11 @@ function ViewTrip() {
       </div>
     );
   }
-  const { countryName, stateName, flag, date, duration, description } = trip;
+  const { countryName, stateName, flag, date, duration, description, images } =
+    trip;
 
   return (
-    <div>
+    <div className="">
       <div className="flex items-center gap-2 mb-6">
         <button
           className="text-2xl cursor-pointer focus:ring focus:ring-white-1 focus:outline-0 rounded-full p-1"
@@ -44,17 +45,18 @@ function ViewTrip() {
           textStyle="text-xl!"
         />
       </div>
-      <div className="border-t border-b border-black-3 dark:border-white-3 py-4">
+      <div className="border-t border-b border-white-3 dark:border-black-3 px-2 py-2">
         <TripCardMeta
           date={date}
           duration={duration}
           minimal={false}
-          className="flex-col items-start"
+          className="flex items-start flex-col sm:flex-row sm:gap-4"
           separate={false}
         />
       </div>
       <p className="p-4">{description}</p>
-      <ImageCarousel />
+
+      <ImageGallery images={images} />
     </div>
   );
 }

@@ -1,5 +1,27 @@
 @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap");
 
+html {
+  font-size: 87.5%;
+
+  /* TILL 1000px */
+  @media (min-width: 62.5em) {
+    /* 1rem = 16px */
+    font-size: 100%;
+  }
+
+  /* TILL 1500px */
+  @media (min-width: 93.75em) {
+    /* 1rem = 32px */
+    font-size: 112.5%;
+  }
+
+  /* TILL 1800px */
+  @media (min-width: 112.5em) {
+    /* 1rem = 32px */
+    font-size: 200%;
+  }
+}
+
 @import "tailwindcss";
 
 @theme {

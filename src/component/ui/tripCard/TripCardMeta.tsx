@@ -18,7 +18,7 @@ function TripCardMeta({
   separate = true,
 }: TripCardMetaProp) {
   return (
-    <ul className={`flex items-center gap-2 ${className}`}>
+    <ul className={`${className}`}>
       <li>
         <MetaData
           minimal={minimal}

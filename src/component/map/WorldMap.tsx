@@ -7,7 +7,6 @@ import { fetchUserLocation } from "../../services/location";
 
 import MapEvents from "./MapEvents";
 import MarkerList from "./MarkerList";
-// import MapMarkers from "./MapMarkers";
 
 function WorldMap() {
   const [isDark, setIsDark] = useState(
@@ -45,7 +44,13 @@ function WorldMap() {
     getUserLocation();
   }, []);
 
-  if (isLoading) return <>Loading</>;
+  if (isLoading) {
+    return (
+      <div className="h-svh w-screen flex items-center justify-center">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <MapContainer

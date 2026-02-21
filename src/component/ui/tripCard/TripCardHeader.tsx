@@ -26,7 +26,10 @@ function TripCardHeader({
       />
       <button
         className="text-2xl text-black-3 dark:text-white-3"
-        onClick={() => removeTrip(id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          removeTrip(id);
+        }}
       >
         <TrashIcon weight="fill" />
       </button>

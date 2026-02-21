@@ -7,7 +7,7 @@ type TripCardProp = {
   date: string;
   duration: string;
   countryName: string;
-  stateName: string;
+  placeName: string;
   flag: string;
   id: string;
   coordinates: Coordinates;
@@ -17,7 +17,7 @@ function TripCard({
   date,
   duration,
   countryName,
-  stateName,
+  placeName,
   flag,
   id,
   coordinates,
@@ -33,7 +33,7 @@ function TripCard({
     >
       <TripCardHeader
         countryName={countryName}
-        stateName={stateName}
+        placeName={placeName}
         flag={flag}
         id={id}
       />

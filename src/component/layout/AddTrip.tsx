@@ -20,7 +20,7 @@ function AddTrip() {
 
   const [flag, setFlags] = useState<string>("");
   const [countryName, setCountryName] = useState<string>("");
-  const [stateName, setStateName] = useState<string>("");
+  const [placeName, setPlaceName] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -33,7 +33,7 @@ function AddTrip() {
   function clearStates() {
     setFlags("");
     setCountryName("");
-    setStateName("");
+    setPlaceName("");
     setDate("");
     setDuration("");
     setDescription("");
@@ -49,13 +49,6 @@ function AddTrip() {
       try {
         const locationDetails = await fetchLocationDetails({ lat, lng });
         setCountryName(locationDetails.address.country || "");
-        setStateName(
-          locationDetails.address.state ||
-            locationDetails.address.city ||
-            locationDetails.address.town ||
-            locationDetails.address.village ||
-            "",
-        );
         setFlags(locationDetails.address.flag || "");
       } catch (err) {
         console.error(err);
@@ -77,7 +70,7 @@ function AddTrip() {
         id,
         flag,
         countryName,
-        stateName,
+        placeName,
         date,
         duration,
         description,
@@ -136,11 +129,11 @@ function AddTrip() {
           setInput={setCountryName}
         />
         <InputField
-          id="state-name"
-          label="State"
+          id="place-name"
+          label="Place"
           placeholder="eg: California, New York, Texas..."
-          input={stateName}
-          setInput={setStateName}
+          input={placeName}
+          setInput={setPlaceName}
         />
         <DatePicker
           date={date}

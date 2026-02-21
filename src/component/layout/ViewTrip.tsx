@@ -25,7 +25,7 @@ function ViewTrip() {
       </div>
     );
   }
-  const { countryName, stateName, flag, date, duration, description, images } =
+  const { countryName, placeName, flag, date, duration, description, images } =
     trip;
 
   return (
@@ -39,7 +39,7 @@ function ViewTrip() {
         </button>
         <PlaceDetails
           countryName={countryName}
-          stateName={stateName}
+          placeName={placeName}
           flag={flag}
           imgStyle="w-8"
           textStyle="text-xl!"

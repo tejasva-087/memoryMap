@@ -14,7 +14,7 @@ function MarkerList() {
             flag={trip.flag}
             countryName={trip.countryName}
             id={trip.id}
-            stateName={trip.stateName}
+            placeName={trip.placeName}
             coordinates={trip.coordinates}
           />
         );

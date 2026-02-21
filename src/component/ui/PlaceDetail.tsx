@@ -1,6 +1,6 @@
 type Prop = {
   countryName: string;
-  stateName: string;
+  placeName: string;
   flag: string;
   imgStyle?: string;
   textStyle?: string;
@@ -8,7 +8,7 @@ type Prop = {
 
 function PlaceDetails({
   countryName,
-  stateName,
+  placeName,
   flag,
   imgStyle = "",
   textStyle = "",
@@ -17,7 +17,7 @@ function PlaceDetails({
     <div className="flex items-center justify-center gap-2">
       <img src={flag} alt="" className={`w-10 ${imgStyle}`} />
       <h3 className={`text-lg ${textStyle}`}>
-        {stateName}, {countryName}
+        {placeName}, {countryName}
       </h3>
     </div>
   );

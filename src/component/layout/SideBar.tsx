@@ -21,7 +21,7 @@ function SideBar() {
                 date={trip.date}
                 duration={trip.duration}
                 countryName={trip.countryName}
-                stateName={trip.stateName}
+                placeName={trip.placeName}
                 flag={trip.flag}
                 id={trip.id}
                 coordinates={trip.coordinates}

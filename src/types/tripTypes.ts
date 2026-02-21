@@ -9,7 +9,7 @@ export type Trip = {
   id: string;
   flag: string;
   countryName: string;
-  stateName: string;
+  placeName: string;
   date: string;
   duration: string;
   description: string;

@@ -10,12 +10,12 @@ import type { Coordinates } from "../../types/tripTypes";
 type Prop = {
   flag: string;
   countryName: string;
-  stateName: string;
+  placeName: string;
   coordinates: Coordinates;
   id: string;
 };
 
-function MapMarker({ flag, countryName, stateName, coordinates, id }: Prop) {
+function MapMarker({ flag, countryName, placeName, coordinates, id }: Prop) {
   const navigate = useNavigate();
   const map = useMap();
 
@@ -41,7 +41,7 @@ function MapMarker({ flag, countryName, stateName, coordinates, id }: Prop) {
       <CustomPopup
         flag={flag}
         countryName={countryName}
-        stateName={stateName}
+        placeName={placeName}
       ></CustomPopup>
     </Marker>
   );

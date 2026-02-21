@@ -4,14 +4,14 @@ import { useTrip } from "../../../context/tripContext";
 
 type TripCardHeaderProp = {
   countryName: string;
-  stateName: string;
+  placeName: string;
   flag: string;
   id: string;
 };
 
 function TripCardHeader({
   countryName,
-  stateName,
+  placeName,
   flag,
   id,
 }: TripCardHeaderProp) {
@@ -21,7 +21,7 @@ function TripCardHeader({
     <div className="flex items-center justify-between">
       <PlaceDetails
         countryName={countryName}
-        stateName={stateName}
+        placeName={placeName}
         flag={flag}
       />
       <button

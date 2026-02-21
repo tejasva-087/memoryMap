@@ -50,7 +50,7 @@ function ImageGallery({ images }: ImageGalleryProps) {
         >
           <button
             onClick={() => setLightbox(null)}
-            className="absolute top-5 right-6 w-9 h-9 text-2xl text-white-1/80 rounded-full hover:bg-white-1/20 transition-colors duration-300 flex items-center justify-center"
+            className="absolute top-5 right-6 w-9 h-9 text-2xl text-white-1/80 rounded-full bg-black-3/80 transition-colors duration-300 flex items-center justify-center"
           >
             <XIcon />
           </button>

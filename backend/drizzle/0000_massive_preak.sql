@@ -1,0 +1,8 @@
+CREATE TABLE "users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"email" text NOT NULL,
+	"password" text NOT NULL,
+	"password_reset_token" text,
+	"password_reset_expires" text,
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);

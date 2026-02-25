@@ -1,26 +1,28 @@
 import { isStrongPassword } from "validator";
 import { z } from "zod";
 
+const emailSchema = z.string().email({ message: "Invalid email format" });
+
+const strongPasswordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters" })
+  .refine(isStrongPassword, {
+    message:
+      "Password must contain uppercase, lowercase, number and special character",
+  });
+
 export const signUpSchema = z.object({
   firstName: z
     .string()
-    .nonempty("First name is required")
-    .min(2, "First name must be at least 2 characters")
-    .trim()
-    .transform((str) => str[0].toUpperCase() + str.slice(1).toLowerCase()),
+    .min(2, { message: "First name must be at least 2 characters" }),
   lastName: z
     .string()
-    .nonempty("Last name is required")
-    .min(2, "Last name must be at least 2 characters"),
-  email: z.email("Invalid email format").nonempty("Email is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .refine(
-      isStrongPassword,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
-    )
-    .nonempty("Password is required"),
+    .min(2, { message: "Last name must be at least 2 characters" }),
+  email: emailSchema,
+  password: strongPasswordSchema,
 });
 
-export type SignUpInput = z.infer<typeof signUpSchema>;
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, { message: "Password is required" }),
+});

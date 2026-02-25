@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
 
 import { db } from "../server.js";
 import catchAsync from "../utils/catchAsync.js";
@@ -23,7 +24,8 @@ type User = {
   firstName: string;
   lastName: string;
   email: string;
-  insertedId: string;
+  id: string;
+  password?: string;
 };
 function createSendToken(user: User, res: Response) {
   const cookieOptions: CookieOptions = {
@@ -33,9 +35,10 @@ function createSendToken(user: User, res: Response) {
     httpOnly: true,
   };
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
-  const token = signToken(user.insertedId);
+  const token = signToken(user.id);
   res.cookie("jwt", token, cookieOptions);
 
+  user.password = undefined;
   res.status(200).json({
     status: "success",
     data: {
@@ -44,27 +47,46 @@ function createSendToken(user: User, res: Response) {
   });
 }
 
-export const signUp = catchAsync(async function (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void | never> {
-  const { password, firstName, lastName, email } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 12);
+export const signUp = catchAsync(
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | never> => {
+    const { password, firstName, lastName, email } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-  const [user] = await db
-    .insert(usersTable)
-    .values({ firstName, lastName, email, password: hashedPassword })
-    .returning({
-      insertedId: usersTable.id,
-      firstName: usersTable.firstName,
-      lastName: usersTable.lastName,
-      email: usersTable.email,
-    });
+    const [user] = await db
+      .insert(usersTable)
+      .values({ firstName, lastName, email, password: hashedPassword })
+      .returning({
+        id: usersTable.id,
+        firstName: usersTable.firstName,
+        lastName: usersTable.lastName,
+        email: usersTable.email,
+      });
 
-  if (!user) {
-    next(new AppError("Failed to create user", 400));
-  }
+    if (!user) {
+      next(new AppError("Failed to create user", 400));
+    }
 
-  createSendToken(user, res);
-});
+    createSendToken(user, res);
+  },
+);
+
+export const logIn = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email));
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      next(new AppError("Either the password or email is invalid.", 403));
+    }
+
+    createSendToken(user, res);
+  },
+);

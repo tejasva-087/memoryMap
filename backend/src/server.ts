@@ -16,7 +16,7 @@ const DB =
     ? process.env.DATABASE_URL_DEV
     : process.env.DATABASE_URL_PROD;
 const sql = neon(DB!);
-drizzle({ client: sql });
+export const db = drizzle({ client: sql });
 
 const startServer = async () => {
   try {

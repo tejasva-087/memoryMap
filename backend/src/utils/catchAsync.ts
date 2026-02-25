@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-module.exports = (
+export default (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<void>,
 ) => {
   return (req: Request, res: Response, next: NextFunction) => {

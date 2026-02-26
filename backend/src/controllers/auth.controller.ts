@@ -4,13 +4,16 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
+import React from "react";
 
 import { db } from "../server.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
 import { userTable } from "../schemas/user.schema.js";
-import sendMail from "../utils/sendMail.js";
+import sendMail from "../emails/sendMail.js";
+
+import VerifyEmail from "../emails/templates/verifyEmail.js";
 
 function signToken(userId: string): string {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
@@ -90,14 +93,22 @@ export const signUp = catchAsync(
         userName: userTable.userName,
         email: userTable.email,
       });
-
     if (!user) {
       next(new AppError("Failed to create user", 400));
     }
 
     // 4. SENDING THE VERIFICATION MAIL
     try {
-      await sendMail({ to: email, subject: "Hello", html: "World" });
+      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${emailVerificationToken}`;
+
+      await sendMail({
+        to: email,
+        subject: "Hello",
+        reactComponent: React.createElement(VerifyEmail, {
+          name: user.userName,
+          verificationUrl: verificationUrl,
+        }),
+      });
     } catch (err) {
       await db.delete(userTable).where(eq(userTable.id, user.id));
       return next(
@@ -109,6 +120,13 @@ export const signUp = catchAsync(
     }
 
     createSendToken(user, res);
+  },
+);
+
+export const verifyEmail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { verificationToken } = req.params;
+    res.end(verificationToken);
   },
 );
 

@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import { render } from "@react-email/render";
+import React from "react";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST!,
@@ -13,15 +15,17 @@ const transporter = nodemailer.createTransport({
 interface SendEmailOptions {
   to: string;
   subject: string;
-  html: string;
+  reactComponent: React.ReactElement;
   text?: string;
 }
 const sendMail = async (options: SendEmailOptions): Promise<void> => {
   try {
+    const html = await render(options.reactComponent);
     await transporter.sendMail({
       from: "Memory Map <memorymap@tejuss.io>",
       to: options.to,
-      html: options.html,
+      subject: options.subject,
+      html: html,
     });
   } catch (err) {
     throw err;

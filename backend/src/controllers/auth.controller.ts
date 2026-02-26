@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -7,7 +9,8 @@ import { db } from "../server.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
-import { usersTable } from "../schemas/user.schema.js";
+import { userTable } from "../schemas/user.schema.js";
+import sendMail from "../utils/sendMail.js";
 
 function signToken(userId: string): string {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
@@ -20,13 +23,12 @@ type CookieOptions = {
   httpOnly: boolean;
   secure?: boolean;
 };
-type User = {
-  firstName: string;
-  lastName: string;
-  email: string;
+interface User {
   id: string;
+  userName: string;
+  email: string;
   password?: string;
-};
+}
 function createSendToken(user: User, res: Response) {
   const cookieOptions: CookieOptions = {
     expires: new Date(
@@ -47,27 +49,63 @@ function createSendToken(user: User, res: Response) {
   });
 }
 
+function createRandomVerificationToken() {
+  const token = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  return { token, hashedToken };
+}
+
+// ************************
+// SIGN UP
+// ************************
 export const signUp = catchAsync(
   async (
     req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void | never> => {
-    const { password, firstName, lastName, email } = req.body;
+    // 1. GETTING SIGN UP DETAILS FORM REQUEST
+    const { password, userName, email } = req.body;
+
+    // 2. GENERATING TOKEN AND HASHING THE TOKEN AND PASSWORD
+    const {
+      token: emailVerificationToken,
+      hashedToken: hashedEmailVerificationToken,
+    } = createRandomVerificationToken();
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // 3. STORING THE DATA IN DATABASE
     const [user] = await db
-      .insert(usersTable)
-      .values({ firstName, lastName, email, password: hashedPassword })
+      .insert(userTable)
+      .values({
+        userName,
+        email,
+        emailVerificationToken: hashedEmailVerificationToken,
+        emailVerificationExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
+        password: hashedPassword,
+      })
       .returning({
-        id: usersTable.id,
-        firstName: usersTable.firstName,
-        lastName: usersTable.lastName,
-        email: usersTable.email,
+        id: userTable.id,
+        userName: userTable.userName,
+        email: userTable.email,
       });
 
     if (!user) {
       next(new AppError("Failed to create user", 400));
+    }
+
+    // 4. SENDING THE VERIFICATION MAIL
+    try {
+      await sendMail({ to: email, subject: "Hello", html: "World" });
+    } catch (err) {
+      await db.delete(userTable).where(eq(userTable.id, user.id));
+      return next(
+        new AppError(
+          "There was an error sending the verification mail. Please try again.",
+          400,
+        ),
+      );
     }
 
     createSendToken(user, res);
@@ -80,8 +118,8 @@ export const logIn = catchAsync(
 
     const [user] = await db
       .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email));
+      .from(userTable)
+      .where(eq(userTable.email, email));
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       next(new AppError("Either the password or email is invalid.", 403));

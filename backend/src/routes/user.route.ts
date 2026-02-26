@@ -1,6 +1,6 @@
 import express from "express";
 
-import validator from "../utils/validator.js";
+import validator from "../validators/validator";
 import { loginSchema, signUpSchema } from "../validators/users.validator.js";
 import { logIn, signUp } from "../controllers/auth.controller.js";
 

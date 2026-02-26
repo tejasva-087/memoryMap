@@ -1,5 +1,5 @@
 {
-  "id": "44fa0877-b128-44cc-a6af-910ec5e84d14",
+  "id": "a59c723f-7cf7-41c7-8abe-ef741228c6b8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -15,21 +15,40 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(64)",
+        "user_name": {
+          "name": "user_name",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "email": {
           "name": "email",
-          "type": "varchar(256)",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "email_verification_token": {
+          "name": "email_verification_token",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email_verification_expires_in": {
+          "name": "email_verification_expires_in",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "password": {
           "name": "password",
-          "type": "varchar(256)",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         }

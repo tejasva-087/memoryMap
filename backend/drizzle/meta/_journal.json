@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1771902641789,
-      "tag": "0000_mixed_the_anarchist",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1771931684303,
-      "tag": "0001_careful_slayback",
+      "when": 1772117941593,
+      "tag": "0000_breezy_madripoor",
       "breakpoints": true
     }
   ]

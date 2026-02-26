@@ -1,6 +1,10 @@
 import { isStrongPassword } from "validator";
 import { z } from "zod";
 
+const nameSchema = z
+  .string()
+  .min(2, { message: "First name must be at least 2 characters" });
+
 const emailSchema = z.string().email({ message: "Invalid email format" });
 
 const strongPasswordSchema = z
@@ -12,12 +16,7 @@ const strongPasswordSchema = z
   });
 
 export const signUpSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, { message: "First name must be at least 2 characters" }),
-  lastName: z
-    .string()
-    .min(2, { message: "Last name must be at least 2 characters" }),
+  userName: nameSchema,
   email: emailSchema,
   password: strongPasswordSchema,
 });

@@ -11,6 +11,8 @@ const app = express();
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
+app.use(express.static("public"));
+
 app.use("/api/v1", userRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {

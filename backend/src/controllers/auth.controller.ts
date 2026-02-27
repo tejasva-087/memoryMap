@@ -12,8 +12,7 @@ import AppError from "../utils/appError.js";
 
 import { userTable } from "../schemas/user.schema.js";
 import sendMail from "../emails/sendMail.js";
-
-import VerifyEmail from "../emails/templates/verifyEmail.js";
+import emailVerificationTemplate from "../emails/templates/verifyEmail.js";
 
 function signToken(userId: string): string {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
@@ -99,15 +98,20 @@ export const signUp = catchAsync(
 
     // 4. SENDING THE VERIFICATION MAIL
     try {
-      const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${emailVerificationToken}`;
-
+      const verificationUrl = `${req.protocol}://${req.get(
+        "host",
+      )}/api/v1/users/resetPassword/${emailVerificationToken}`;
       await sendMail({
         to: email,
         subject: "Hello",
-        reactComponent: React.createElement(VerifyEmail, {
-          name: user.userName,
-          verificationUrl: verificationUrl,
-        }),
+        html: emailVerificationTemplate
+          .replace(
+            "[APP_LOGO]",
+            `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
+          )
+          .replaceAll("[USER_NAME]", userName)
+          .replaceAll("[VERIFICATION_URL]", verificationUrl)
+          .replace("[CURRENT_YEAR]", `${new Date().getFullYear()}`),
       });
     } catch (err) {
       await db.delete(userTable).where(eq(userTable.id, user.id));

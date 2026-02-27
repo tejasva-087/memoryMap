@@ -15,17 +15,17 @@ const transporter = nodemailer.createTransport({
 interface SendEmailOptions {
   to: string;
   subject: string;
-  reactComponent: React.ReactElement;
+  html: string;
   text?: string;
 }
 const sendMail = async (options: SendEmailOptions): Promise<void> => {
   try {
-    const html = await render(options.reactComponent);
     await transporter.sendMail({
       from: "Memory Map <memorymap@tejuss.io>",
       to: options.to,
       subject: options.subject,
-      html: html,
+      html: options.html,
+      text: options?.text,
     });
   } catch (err) {
     throw err;

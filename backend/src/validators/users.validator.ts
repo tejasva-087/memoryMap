@@ -1,5 +1,6 @@
+import passport from "passport";
 import { isStrongPassword } from "validator";
-import { z } from "zod";
+import { email, z } from "zod";
 
 const nameSchema = z
   .string()
@@ -24,4 +25,12 @@ export const signUpSchema = z.object({
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, { message: "Password is required" }),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z.object({
+  newPassword: strongPasswordSchema,
 });

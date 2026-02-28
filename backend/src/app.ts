@@ -13,7 +13,7 @@ app.use(cookieParser());
 
 app.use(express.static("public"));
 
-app.use("/api/v1", userRouter);
+app.use("/api/v1/user", userRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   return next(

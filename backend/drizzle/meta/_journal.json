@@ -8,6 +8,34 @@
       "when": 1772117941593,
       "tag": "0000_breezy_madripoor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772299921662,
+      "tag": "0001_daffy_mikhail_rasputin",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772300236837,
+      "tag": "0002_simple_tattoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772301980380,
+      "tag": "0003_kind_vector",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772308101850,
+      "tag": "0004_cute_speedball",
+      "breakpoints": true
     }
   ]
 }

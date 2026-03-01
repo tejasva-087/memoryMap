@@ -52,7 +52,7 @@ function createSendToken(user: User, res: Response) {
   });
 }
 
-function createRandomVerificationToken() {
+function createCryptoToken() {
   const token = crypto.randomBytes(32).toString("hex");
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -80,7 +80,7 @@ export const signUp = catchAsync(
     const {
       token: emailVerificationToken,
       hashedToken: hashedEmailVerificationToken,
-    } = createRandomVerificationToken();
+    } = createCryptoToken();
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 3. STORING THE DATA IN DATABASE
@@ -140,7 +140,7 @@ export const verifyEmail = catchAsync(
     // 1. Getting the verification token
     const { verificationToken } = req.params;
     if (!verificationToken) {
-      return next(new AppError("Verification code missing", 400));
+      return next(new AppError("Verification token missing", 400));
     }
 
     // 2. Creating the hash of the token and searching if the token is valid
@@ -153,20 +153,22 @@ export const verifyEmail = catchAsync(
       .from(userTable)
       .where(eq(userTable.emailVerificationToken, hashedToken));
 
-    // 3. If the token is invalid deleting the user form database
+    // 3. If the token is invalid sending error for retrying
     if (!user) {
-      return next(
-        new AppError("The token is invalid, please sign up again", 400),
-      );
+      return next(new AppError("The token is invalid, please try again", 400));
     }
     if (
       !user.emailVerificationExpiresIn ||
       new Date(user.emailVerificationExpiresIn).getTime() < new Date().getTime()
     ) {
-      await db.delete(userTable).where(eq(userTable.id, user.id));
-      return next(
-        new AppError("The token is invalid, please sign up again", 404),
-      );
+      await db
+        .update(userTable)
+        .set({
+          emailVerificationToken: null,
+          emailVerificationExpiresIn: null,
+        })
+        .where(eq(userTable.id, user.id));
+      return next(new AppError("The token is invalid, please try again", 404));
     }
 
     // 5. If the token is valid updating the user to be verified
@@ -190,6 +192,93 @@ export const verifyEmail = catchAsync(
 );
 
 // ************************
+// RESEND VERIFICATION
+// ************************
+export const resendVerification = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Getting the email from the body
+    const { email } = req.body;
+
+    // 2. Checking if the user with that email exists or not
+    const [user] = await db
+      .select({
+        id: userTable.id,
+        isVerified: userTable.isVerified,
+      })
+      .from(userTable)
+      .where(eq(userTable.email, email));
+
+    // 3. If the user does not exists returning
+    if (!user) {
+      res.status(200).json({
+        status: "success",
+        message: `If the email exists a verification mail has been sent to them.`,
+      });
+    }
+
+    // 4. If the email already verified doing nothing
+    if (user.isVerified) {
+      res.status(200).json({
+        status: "success",
+        message: "If the email exists, a verification mail has been sent.",
+      });
+    }
+
+    // 4. Generating the verification token
+    const {
+      token: emailVerificationToken,
+      hashedToken: hashedEmailVerificationToken,
+    } = createCryptoToken();
+
+    // 5. Updating the verification token
+    const [updatedUser] = await db
+      .update(userTable)
+      .set({
+        emailVerificationToken: hashedEmailVerificationToken,
+        emailVerificationExpiresIn: new Date(
+          new Date().getTime() + 10 * 60 * 1000,
+        ),
+      })
+      .where(eq(userTable.id, user.id))
+      .returning({
+        id: userTable.id,
+        userName: userTable.userName,
+      });
+
+    // 6. sending the verification code
+    try {
+      const verificationUrl = `${req.protocol}://${req.get(
+        "host",
+      )}/api/v1/user/verifyemail/${emailVerificationToken}`;
+
+      await sendMail({
+        to: email,
+        subject: "Memory Map - Email Address Verification",
+        html: emailVerificationTemplate
+          .replace(
+            "[APP_LOGO]",
+            `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
+          )
+          .replace("[USER_NAME]", updatedUser.userName)
+          .replaceAll("[VERIFICATION_URL]", verificationUrl),
+      });
+    } catch (err) {
+      return next(
+        new AppError(
+          "There was an error sending the verification mail. Please try again.",
+          500,
+        ),
+      );
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "If the email exists, a verification mail has been sent.",
+    });
+  },
+);
+
+// ************************
 // LOG IN
 // ************************
 export const logIn = catchAsync(
@@ -209,17 +298,17 @@ export const logIn = catchAsync(
       .from(userTable)
       .where(eq(userTable.email, email));
 
-    // 3. if the user is not verified don't let them login
-    if (!user.isVerified) {
-      return next(
-        new AppError("Please verify your email before logging in.", 401),
-      );
-    }
-
-    // 4. If the user does not exists and password is invalid throw error
+    // 3. Checking if the password matches
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return next(
         new AppError("Either the password or email is invalid.", 401),
+      );
+    }
+
+    // 4. Checking if the user is verified
+    if (!user.isVerified) {
+      return next(
+        new AppError("Please verify your email before logging in.", 401),
       );
     }
 
@@ -298,7 +387,7 @@ export const forgotPassword = catchAsync(
 
     // 2. Checking if the user with that email exists or not
     const [user] = await db
-      .select({ id: userTable.id })
+      .select({ id: userTable.id, userName: userTable.userName })
       .from(userTable)
       .where(eq(userTable.email, email));
 
@@ -311,17 +400,16 @@ export const forgotPassword = catchAsync(
 
     // 3. If the user exists we sent a token on mail
     const { token: passwordResetToken, hashedToken: hashedPasswordResetToken } =
-      createRandomVerificationToken();
+      createCryptoToken();
 
     // 4. Storing the hashed token in the
-    const [updatedUser] = await db
+    await db
       .update(userTable)
       .set({
         passwordResetToken: hashedPasswordResetToken,
         passwordResetExpiresIn: new Date(new Date().getTime() + 10 * 60 * 1000),
       })
-      .where(eq(userTable.id, user.id))
-      .returning({ userName: userTable.userName });
+      .where(eq(userTable.id, user.id));
 
     // 5. Sending the token to the user
     try {
@@ -338,7 +426,7 @@ export const forgotPassword = catchAsync(
             "[APP_LOGO]",
             `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
           )
-          .replace("[USER_NAME]", updatedUser.userName)
+          .replace("[USER_NAME]", user.userName)
           .replaceAll("[RESET_URL]", verificationUrl),
       });
     } catch (err) {

@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 
 import validator from "../validators/validator";
 import {
@@ -6,6 +7,7 @@ import {
   signUpSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  resendVerificationSchema,
 } from "../validators/users.validator.js";
 import {
   forgotPassword,
@@ -17,10 +19,38 @@ import {
 
 const router = express.Router();
 
-router.post("/signup", validator(signUpSchema), signUp);
-router.post("/login", validator(loginSchema), logIn);
-router.get("/verifyemail/:verificationToken", verifyEmail);
-router.post("/forgotpassword", validator(forgotPasswordSchema), forgotPassword);
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: {
+    status: "fail",
+    message: "Too many authentication attempts. Try again later.",
+  },
+});
+const emailActionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: {
+    status: "fail",
+    message: "Too many email requests. Please wait.",
+  },
+});
+
+router.post("/signup", authLimiter, validator(signUpSchema), signUp);
+router.post("/login", authLimiter, validator(loginSchema), logIn);
+
+router.get("/verifyemail/:verificationToken", emailActionLimiter, verifyEmail);
+router.get(
+  "/resendVerificationToken/:verificationToken",
+  emailActionLimiter,
+  validator(resendVerificationSchema),
+);
+router.post(
+  "/forgotpassword",
+  emailActionLimiter,
+  validator(forgotPasswordSchema),
+  forgotPassword,
+);
 router.patch(
   "/resetpassword/:resetToken",
   validator(resetPasswordSchema),

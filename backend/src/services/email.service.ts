@@ -1,6 +1,4 @@
 import nodemailer from "nodemailer";
-import { render } from "@react-email/render";
-import React from "react";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST!,
@@ -12,13 +10,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ***************************
+// SEND MAIL
+// ***************************
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   text?: string;
 }
-const sendMail = async (options: SendEmailOptions): Promise<void> => {
+export const sendMail = async (options: SendEmailOptions): Promise<void> => {
   try {
     await transporter.sendMail({
       from: "Memory Map <memorymap@tejuss.io>",
@@ -32,4 +33,8 @@ const sendMail = async (options: SendEmailOptions): Promise<void> => {
   }
 };
 
-export default sendMail;
+// ****************************
+// SEND VERIFICATION MAIL
+// ****************************
+
+export const sendVerificationMail = async () => {};

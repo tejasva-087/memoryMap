@@ -10,8 +10,7 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
 import { userTable } from "../schemas/user.schema.js";
-import sendMail from "../emails/sendMail.js";
-import emailVerificationTemplate from "../emails/templates/verifyEmail.js";
+import { sendMail, sendVerificationMail } from "../emails/email.js";
 import passwordResetTemplate from "../emails/templates/passwordReset.js";
 
 function signToken(userId: string): string {
@@ -100,29 +99,15 @@ export const signUp = catchAsync(
 
     // 4. SENDING THE VERIFICATION MAIL
     try {
-      const verificationUrl = `${req.protocol}://${req.get(
-        "host",
-      )}/api/v1/user/verifyemail/${emailVerificationToken}`;
-
-      await sendMail({
-        to: email,
-        subject: "Memory Map - Email Address Verification",
-        html: emailVerificationTemplate
-          .replace(
-            "[APP_LOGO]",
-            `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
-          )
-          .replace("[USER_NAME]", userName)
-          .replaceAll("[VERIFICATION_URL]", verificationUrl),
+      await sendVerificationMail({
+        req,
+        receiverEmail: email,
+        receiverName: userName,
+        verificationToken: emailVerificationToken,
       });
     } catch (err) {
-      await db.delete(userTable).where(eq(userTable.id, user.id));
-      return next(
-        new AppError(
-          "There was an error sending the verification mail. Please try again.",
-          500,
-        ),
-      );
+      db.delete(userTable).where(eq(userTable.id, user.id));
+      return next(new AppError("There was a problem sending mail", 500));
     }
 
     res.status(201).json({
@@ -247,28 +232,15 @@ export const resendVerification = catchAsync(
 
     // 6. sending the verification code
     try {
-      const verificationUrl = `${req.protocol}://${req.get(
-        "host",
-      )}/api/v1/user/verifyemail/${emailVerificationToken}`;
-
-      await sendMail({
-        to: email,
-        subject: "Memory Map - Email Address Verification",
-        html: emailVerificationTemplate
-          .replace(
-            "[APP_LOGO]",
-            `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
-          )
-          .replace("[USER_NAME]", updatedUser.userName)
-          .replaceAll("[VERIFICATION_URL]", verificationUrl),
+      await sendVerificationMail({
+        req,
+        receiverEmail: email,
+        receiverName: updatedUser.userName,
+        verificationToken: emailVerificationToken,
       });
     } catch (err) {
-      return next(
-        new AppError(
-          "There was an error sending the verification mail. Please try again.",
-          500,
-        ),
-      );
+      db.delete(userTable).where(eq(userTable.id, user.id));
+      return next(new AppError("There was a problem sending mail", 500));
     }
 
     res.status(200).json({
@@ -514,7 +486,60 @@ export const resetPassword = catchAsync(
 // ************************
 // CHANGE PASSWORD
 // ************************
+export const changePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Getting the old, new password and user details
+    const { password, newPassword } = req.body;
+    const { id } = req.user as any;
+
+    // 2. Getting the password form the user
+    const [user] = await db
+      .select({ password: userTable.password })
+      .from(userTable)
+      .where(eq(userTable.id, id));
+
+    // 3. Checking if the password matches
+    if (!(await bcrypt.compare(password, user.password)))
+      return next(new AppError("The provided password is incorrect", 400));
+
+    // 4. Changing the password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await db
+      .update(userTable)
+      .set({
+        password: hashedPassword,
+        passwordChangedAt: new Date(),
+      })
+      .where(eq(userTable.id, id));
+
+    res.status(200).json({
+      status: "success",
+      message: "Password changed successfully",
+    });
+  },
+);
 
 // ************************
 // CHANGE EMAIL
 // ************************
+
+export const changeEmail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. Getting the old and new email and user current email form request
+    const { newEmail } = req.body;
+    const { email } = req.user as any;
+
+    if (email === newEmail)
+      return next(
+        new AppError("The new email cannot be similar to the old email", 400),
+      );
+
+    // 2. changing the email
+    await db.update(userTable).set({
+      email: newEmail,
+      isVerified: false,
+    });
+
+    // 3. Sending the verification mail
+  },
+);

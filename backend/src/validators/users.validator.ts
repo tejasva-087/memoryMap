@@ -1,6 +1,5 @@
-import passport from "passport";
 import { isStrongPassword } from "validator";
-import { email, z } from "zod";
+import { z } from "zod";
 
 const nameSchema = z
   .string()
@@ -37,4 +36,18 @@ export const resetPasswordSchema = z.object({
 
 export const resendVerificationSchema = z.object({
   email: emailSchema,
+});
+
+export const changePasswordSchema = z
+  .object({
+    password: strongPasswordSchema,
+    newPassword: strongPasswordSchema,
+  })
+  .refine((data) => data.password !== data.newPassword, {
+    message: "New password must be different from the old password",
+    path: ["newPassword"],
+  });
+
+export const changeEmailSchema = z.object({
+  newEmail: strongPasswordSchema,
 });

@@ -1,10 +1,9 @@
-import { ReactElement } from "react";
 import { theme } from "../styles";
 import Logo from "./Logo";
-import TableRow from "./TableRow";
+import { ReactNode } from "react";
 
 interface MainProp {
-  children: ReactElement;
+  children: ReactNode;
 }
 
 function Main({ children }: MainProp) {
@@ -13,35 +12,15 @@ function Main({ children }: MainProp) {
       <body
         style={{
           margin: 0,
-          padding: theme.spacing.xs,
+          padding: 0,
           backgroundColor: theme.colors.white1,
-          fontSize: theme.typography.fontSizeBase,
-          fontWeight: theme.typography.fontWeightBase,
-          color: theme.colors.black1,
+          maxWidth: "425px",
+          border: `1px solid ${theme.colors.white3}`,
+          borderTop: `4px solid ${theme.colors.primary}`,
         }}
       >
-        <table
-          width="100%"
-          cellPadding="0"
-          cellSpacing="0"
-          style={{
-            maxWidth: "560px",
-            margin: "0 auto",
-            border: `1px solid ${theme.colors.white3}`,
-            borderTop: `4px solid ${theme.colors.primary}`,
-            borderRadius: "4px",
-            backgroundColor: theme.colors.white1,
-            padding: theme.spacing.lg,
-          }}
-        >
-          <tbody>
-            <TableRow padding={theme.spacing.md}>
-              <Logo />
-            </TableRow>
-
-            {children}
-          </tbody>
-        </table>
+        <Logo />
+        {children}
       </body>
     </html>
   );

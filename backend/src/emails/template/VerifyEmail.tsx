@@ -3,7 +3,7 @@ import TableRow from "../components/TableRow";
 import Divider from "../components/Divider";
 import EmailActionSection from "../components/MainVerificationContent";
 import VerificationFallback from "../components/VerificationFallback";
-import Footer from "../components/footer";
+import Footer from "../components/Footer";
 import { theme } from "../styles";
 
 interface VerifyEmailProps {
@@ -11,7 +11,7 @@ interface VerifyEmailProps {
   verificationUrl: string;
 }
 
-export function VerifyEmail({ userName, verificationUrl }: VerifyEmailProps) {
+function VerifyEmail({ userName, verificationUrl }: VerifyEmailProps) {
   return (
     <Main>
       <>

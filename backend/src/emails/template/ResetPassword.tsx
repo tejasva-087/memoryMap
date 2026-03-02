@@ -3,22 +3,25 @@ import TableRow from "../components/TableRow";
 import Divider from "../components/Divider";
 import EmailActionSection from "../components/MainVerificationContent";
 import VerificationFallback from "../components/VerificationFallback";
-import Footer from "../components/footer";
+import Footer from "../components/Footer";
 import { theme } from "../styles";
 
 interface ResetPasswordProps {
   userName: string;
-  resetUrl: string;
+  passwordResetUrl: string;
 }
 
-export function ResetPassword({ userName, resetUrl }: ResetPasswordProps) {
+export function ResetPassword({
+  userName,
+  passwordResetUrl,
+}: ResetPasswordProps) {
   return (
     <Main>
       <>
         <TableRow padding={`0 ${theme.spacing.sm} ${theme.spacing.md}`}>
           <EmailActionSection
             userName={userName}
-            verificationUrl={resetUrl}
+            verificationUrl={passwordResetUrl}
             heading="Password reset"
             message="tap the button below to reset your account password."
             linkPlaceholder="Reset Password"
@@ -30,7 +33,7 @@ export function ResetPassword({ userName, resetUrl }: ResetPasswordProps) {
         </TableRow>
 
         <TableRow padding={`${theme.spacing.md} ${theme.spacing.sm}`}>
-          <VerificationFallback verificationUrl={resetUrl} />
+          <VerificationFallback verificationUrl={passwordResetUrl} />
         </TableRow>
 
         <TableRow padding="0">

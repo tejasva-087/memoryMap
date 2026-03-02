@@ -10,8 +10,11 @@ import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
 import { userTable } from "../schemas/user.schema.js";
-import { sendMail, sendVerificationMail } from "../emails/email.js";
-import passwordResetTemplate from "../emails/templates/passwordReset.js";
+import {
+  sendPasswordResetMail,
+  sendVerificationMail,
+} from "../services/email.service.js";
+import { AuthenticatedRequest } from "../types/auth.types.js";
 
 function signToken(userId: string): string {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
@@ -100,10 +103,9 @@ export const signUp = catchAsync(
     // 4. SENDING THE VERIFICATION MAIL
     try {
       await sendVerificationMail({
-        req,
         receiverEmail: email,
-        receiverName: userName,
-        verificationToken: emailVerificationToken,
+        receiverUserName: userName,
+        emailVerificationToken,
       });
     } catch (err) {
       db.delete(userTable).where(eq(userTable.id, user.id));
@@ -233,13 +235,11 @@ export const resendVerification = catchAsync(
     // 6. sending the verification code
     try {
       await sendVerificationMail({
-        req,
         receiverEmail: email,
-        receiverName: updatedUser.userName,
-        verificationToken: emailVerificationToken,
+        receiverUserName: updatedUser.userName,
+        emailVerificationToken,
       });
     } catch (err) {
-      db.delete(userTable).where(eq(userTable.id, user.id));
       return next(new AppError("There was a problem sending mail", 500));
     }
 
@@ -298,7 +298,7 @@ interface JwtPayloadWithId extends jwt.JwtPayload {
   exp: number;
 }
 export const protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // 1. Getting the jwt token
     const { jwt: jwtToken } = req.cookies;
     if (!jwtToken) {
@@ -385,21 +385,10 @@ export const forgotPassword = catchAsync(
 
     // 5. Sending the token to the user
     try {
-      // TODO: CHANGE THIS TO FRONTEND URL WHEN READY FOR PRODUCTION
-      const verificationUrl = `${req.protocol}://${req.get(
-        "host",
-      )}/api/v1/user/resetpassword/${passwordResetToken}`;
-
-      await sendMail({
-        to: email,
-        subject: "Memory Map - Password Reset",
-        html: passwordResetTemplate
-          .replace(
-            "[APP_LOGO]",
-            `${req.protocol}://${req.get("host")}/memoryMapLogo.svg`,
-          )
-          .replace("[USER_NAME]", user.userName)
-          .replaceAll("[RESET_URL]", verificationUrl),
+      await sendPasswordResetMail({
+        receiverEmail: email,
+        receiverUserName: user.userName,
+        passwordResetToken: passwordResetToken,
       });
     } catch (err) {
       await db
@@ -487,10 +476,10 @@ export const resetPassword = catchAsync(
 // CHANGE PASSWORD
 // ************************
 export const changePassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // 1. Getting the old, new password and user details
     const { password, newPassword } = req.body;
-    const { id } = req.user as any;
+    const { id } = req.user!;
 
     // 2. Getting the password form the user
     const [user] = await db
@@ -524,10 +513,10 @@ export const changePassword = catchAsync(
 // ************************
 
 export const changeEmail = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     // 1. Getting the old and new email and user current email form request
     const { newEmail } = req.body;
-    const { email } = req.user as any;
+    const { email } = req.user;
 
     if (email === newEmail)
       return next(

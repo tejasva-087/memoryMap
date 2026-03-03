@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import VerifyEmail from "../emails/template/VerifyEmail.js";
 import renderEmail from "../emails/renderEmail.js";
 import ResetPassword from "../emails/template/ResetPassword.js";
+import AppError from "../utils/appError.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST!,
@@ -33,23 +34,19 @@ export const sendMail = async (options: SendEmailOptions): Promise<void> => {
       text: options?.text,
     });
   } catch (err) {
-    throw err;
+    new AppError("Failed to send verification code, please try again.", 500);
   }
 };
 
 // ****************************
 // SEND VERIFICATION MAIL
 // ****************************
-interface SendVerificationMailOptions {
-  receiverEmail: string;
-  receiverUserName: string;
-  emailVerificationToken: string;
-}
-export const sendVerificationMail = async ({
-  receiverEmail,
-  receiverUserName,
-  emailVerificationToken,
-}: SendVerificationMailOptions) => {
+
+export const sendVerificationMail = async (
+  receiverEmail: string,
+  receiverUserName: string,
+  emailVerificationToken: string,
+) => {
   try {
     const verificationUrl =
       process.env.FE_EMAIL_VERIFICATION_LINK + "/" + emailVerificationToken;
@@ -74,16 +71,11 @@ export const sendVerificationMail = async ({
 // ****************************
 // SEND PASSWORD RESET MAIL
 // ****************************
-interface SendPasswordResetMailOptions {
-  receiverEmail: string;
-  receiverUserName: string;
-  passwordResetToken: string;
-}
-export const sendPasswordResetMail = async ({
-  passwordResetToken,
-  receiverEmail,
-  receiverUserName,
-}: SendPasswordResetMailOptions) => {
+export const sendPasswordResetMail = async (
+  receiverEmail: string,
+  receiverUserName: string,
+  passwordResetToken: string,
+) => {
   try {
     const passwordResetUrl =
       process.env.FE_PASSWORD_RESET_LINK + "/" + passwordResetToken;

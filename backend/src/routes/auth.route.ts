@@ -12,12 +12,10 @@ import {
   changeEmailSchema,
 } from "../validators/users.validator.js";
 import {
-  changeEmail,
-  changePassword,
   forgotPassword,
   logIn,
   protect,
-  resendVerification,
+  resendEmailVerification,
   resetPassword,
   signUp,
   verifyEmail,
@@ -82,7 +80,7 @@ router.get(
   "/resendemailverification",
   emailActionLimiter,
   validator(resendVerificationSchema),
-  resendVerification,
+  resendEmailVerification,
 );
 
 // ************************
@@ -107,22 +105,22 @@ router.patch(
 // ************************
 // CHANGE PASSWORD
 // ************************
-router.patch(
-  "/changepassword",
-  changePasswordLimiter,
-  validator(changePasswordSchema),
-  protect,
-  changePassword,
-);
+// router.patch(
+//   "/changepassword",
+//   changePasswordLimiter,
+//   validator(changePasswordSchema),
+//   protect,
+//   changePassword,
+// );
 
-// ************************
-// CHANGE EMAIL
-// ************************
-router.patch(
-  "/changeemail",
-  changeEmailLimiter,
-  validator(changeEmailSchema),
-  changeEmail,
-);
+// // ************************
+// // CHANGE EMAIL
+// // ************************
+// router.patch(
+//   "/changeemail",
+//   changeEmailLimiter,
+//   validator(changeEmailSchema),
+//   changeEmail,
+// );
 
 export default router;

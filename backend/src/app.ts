@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 
-import userRouter from "./routes/user.route.js";
+import userRouter from "./routes/auth.route.js";
 import globalErrorHandler from "./controllers/error.controller";
 import AppError from "./utils/appError";
 

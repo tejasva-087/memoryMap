@@ -14,6 +14,7 @@ export const userTable = pgTable("users", {
   isVerified: boolean("is_verified").notNull().default(false),
   emailVerificationToken: varchar("email_verification_token", { length: 255 }),
   emailVerificationExpiresIn: timestamp("email_verification_expires_in"),
+  pendingEmail: varchar("pending_email", { length: 255 }).unique(),
 
   password: varchar("password", { length: 255 }).notNull(),
 

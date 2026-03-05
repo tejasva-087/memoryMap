@@ -1,9 +1,8 @@
 import React from "react";
 import nodemailer from "nodemailer";
-import VerifyEmail from "../emails/template/VerifyEmail.js";
-import renderEmail from "../emails/renderEmail.js";
-import ResetPassword from "../emails/template/ResetPassword.js";
 import AppError from "../utils/appError.js";
+import verifyEmailTemplate from "../emails/VerifyEmail.js";
+import passwordResetTemplate from "../emails/ResetPassword.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST!,
@@ -50,12 +49,9 @@ export const sendVerificationMail = async (
   try {
     const verificationUrl =
       process.env.FE_EMAIL_VERIFICATION_LINK + "/" + emailVerificationToken;
-    const html = renderEmail(
-      React.createElement(VerifyEmail, {
-        userName: receiverUserName,
-        verificationUrl,
-      }),
-    );
+    const html = verifyEmailTemplate
+      .replace("[USER_NAME]", receiverUserName)
+      .replaceAll("[VERIFICATION_URL]", verificationUrl);
 
     await sendMail({
       to: receiverEmail,
@@ -79,16 +75,14 @@ export const sendPasswordResetMail = async (
   try {
     const passwordResetUrl =
       process.env.FE_PASSWORD_RESET_LINK + "/" + passwordResetToken;
+    const html = passwordResetTemplate
+      .replace("[USER_NAME]", receiverUserName)
+      .replaceAll("[RESET_URL]", passwordResetUrl);
 
     await sendMail({
       to: receiverEmail,
       subject: "Memory Map - Password Reset",
-      html: renderEmail(
-        React.createElement(ResetPassword, {
-          userName: receiverUserName,
-          passwordResetUrl,
-        }),
-      ),
+      html,
     });
   } catch (err) {
     throw err;

@@ -140,11 +140,11 @@ export const resetPassword = catchAsync(
     const { newPassword } = req.body;
 
     try {
-      const updatedUser = await updatePassword(
-        resetToken as string,
-        newPassword,
-      );
-      createSendToken(updatedUser, res);
+      await updatePassword(resetToken as string, newPassword);
+      res.status(200).json({
+        status: "success",
+        message: "Your password has been updated.",
+      });
     } catch (err) {
       next(err);
     }
@@ -167,63 +167,3 @@ export const protect = catchAsync(
     }
   },
 );
-
-// // ************************
-// // CHANGE PASSWORD
-// // ************************
-// export const changePassword = catchAsync(
-//   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-//     // 1. Getting the old, new password and user details
-//     const { password, newPassword } = req.body;
-//     const { id } = req.user!;
-
-//     // 2. Getting the password form the user
-//     const [user] = await db
-//       .select({ password: userTable.password })
-//       .from(userTable)
-//       .where(eq(userTable.id, id));
-
-//     // 3. Checking if the password matches
-//     if (!(await bcrypt.compare(password, user.password)))
-//       return next(new AppError("The provided password is incorrect", 400));
-
-//     // 4. Changing the password
-//     const hashedPassword = await bcrypt.hash(newPassword, 12);
-//     await db
-//       .update(userTable)
-//       .set({
-//         password: hashedPassword,
-//         passwordChangedAt: new Date(),
-//       })
-//       .where(eq(userTable.id, id));
-
-//     res.status(200).json({
-//       status: "success",
-//       message: "Password changed successfully",
-//     });
-//   },
-// );
-
-// // ************************
-// // CHANGE EMAIL
-// // ************************
-// export const changeEmail = catchAsync(
-//   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-//     // 1. Getting the old and new email and user current email form request
-//     const { newEmail } = req.body;
-//     const { email } = req.user;
-
-//     if (email === newEmail)
-//       return next(
-//         new AppError("The new email cannot be similar to the old email", 400),
-//       );
-
-//     // 2. changing the email
-//     await db.update(userTable).set({
-//       email: newEmail,
-//       isVerified: false,
-//     });
-
-//     // 3. Sending the verification mail
-//   },
-// );

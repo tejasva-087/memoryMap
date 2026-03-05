@@ -2,9 +2,9 @@ import crypto from "crypto";
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { eq, or } from "drizzle-orm";
 
 import { db } from "../server";
-import { eq } from "drizzle-orm";
 import { userTable } from "../schemas/user.schema";
 import { sendPasswordResetMail, sendVerificationMail } from "./email.service";
 import AppError from "../utils/appError";
@@ -15,9 +15,10 @@ import AppError from "../utils/appError";
 
 function generateRandomToken() {
   const token = crypto.randomBytes(32).toString("hex");
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-  return { token, hashedToken };
+  return {
+    token,
+    hashedToken: crypto.createHash("sha256").update(token).digest("hex"),
+  };
 }
 
 function hashToken(token: string) {
@@ -106,29 +107,55 @@ export const resendVerificationEmail = async (email: string) => {
 
 // verify email
 export const verifyEmailToken = async (verificationToken: string) => {
-  // Getting the user with provided email
+  // Getting the user with the provided verification token
+  const hashedToken = hashToken(verificationToken);
   const [user] = await db
     .select({
       id: userTable.id,
       emailVerificationExpiresIn: userTable.emailVerificationExpiresIn,
+      pendingEmail: userTable.pendingEmail,
     })
     .from(userTable)
-    .where(eq(userTable.emailVerificationToken, hashToken(verificationToken)));
+    .where(eq(userTable.emailVerificationToken, hashedToken));
 
   // If the token is expired or invalid throwing error
   if (!user) throw new AppError("The token is invalid, please try again", 400);
-  if (
+
+  const isExpired =
     !user.emailVerificationExpiresIn ||
-    new Date(user.emailVerificationExpiresIn).getTime() < new Date().getTime()
-  ) {
+    user.emailVerificationExpiresIn < new Date();
+  if (isExpired) {
     await db
       .update(userTable)
       .set({
         emailVerificationToken: null,
         emailVerificationExpiresIn: null,
+        pendingEmail: null,
       })
       .where(eq(userTable.id, user.id));
     throw new AppError("The token is invalid, please try again", 400);
+  }
+
+  // changing the email to new email if the email was changed after user creation
+  if (user.pendingEmail) {
+    const [updatedUser] = await db
+      .update(userTable)
+      .set({
+        email: user.pendingEmail,
+        isVerified: true,
+        pendingEmail: null,
+        emailVerificationToken: null,
+        emailVerificationExpiresIn: null,
+      })
+      .where(eq(userTable.id, user.id))
+      .returning({
+        id: userTable.id,
+        userName: userTable.userName,
+        email: userTable.email,
+        isVerified: userTable.isVerified,
+      });
+
+    return updatedUser;
   }
 
   // Updating the user to be verified and removing unnecessary properties
@@ -171,7 +198,8 @@ export const authenticateUser = async (email: string, password: string) => {
     throw new AppError("Please verify your email before logging in.", 401);
   }
 
-  return user;
+  const { password: _, ...safeUser } = user;
+  return safeUser;
 };
 
 // forgot password
@@ -241,7 +269,7 @@ export const updatePassword = async (
   }
 
   // if the link is valid updating the password
-  const [updatedUser] = await db
+  await db
     .update(userTable)
     .set({
       passwordResetToken: null,
@@ -249,15 +277,7 @@ export const updatePassword = async (
       password: await bcrypt.hash(newPassword, 12),
       passwordChangedAt: new Date(),
     })
-    .where(eq(userTable.id, user.id))
-    .returning({
-      id: userTable.id,
-      userName: userTable.userName,
-      email: userTable.email,
-      isVerified: userTable.isVerified,
-    });
-
-  return updatedUser;
+    .where(eq(userTable.id, user.id));
 };
 
 // protect
@@ -267,7 +287,7 @@ interface JwtPayloadWithId extends jwt.JwtPayload {
   exp: number;
 }
 export const authorize = async (jwtToken: string) => {
-  const { id, iat, exp } = jwt.verify(
+  const { id, iat } = jwt.verify(
     jwtToken,
     process.env.JWT_SECRET!,
   ) as JwtPayloadWithId;
@@ -302,5 +322,79 @@ export const authorize = async (jwtToken: string) => {
     }
   }
 
+  if (!user.isVerified) throw new AppError("Please verify your email", 401);
+
   return user;
+};
+
+// change password (AUTHORIZED ROUTE)
+export const changePasswordAuthorized = async (
+  oldPassword: string,
+  newPassword: string,
+  id: string,
+) => {
+  // checking the users old password
+  const [user] = await db
+    .select({ password: userTable.password })
+    .from(userTable)
+    .where(eq(userTable.id, id));
+
+  if (!(await bcrypt.compare(oldPassword, user.password))) {
+    throw new AppError("The provided password is incorrect", 400);
+  }
+
+  // updating the new password after hashing it
+  const hashedNewPassword = await hashUserPassword(newPassword);
+  await db
+    .update(userTable)
+    .set({
+      password: hashedNewPassword,
+      passwordChangedAt: new Date(),
+    })
+    .where(eq(userTable.id, id));
+};
+
+// change email (AUTHORIZED ROUTE)
+export const changeEmailAuthorized = async (
+  userId: string,
+  newEmail: string,
+  userName: string,
+) => {
+  // checking if the new email is already being used
+  const [existingUser] = await db
+    .select({ id: userTable.id })
+    .from(userTable)
+    .where(
+      or(eq(userTable.email, newEmail), eq(userTable.pendingEmail, newEmail)),
+    );
+  if (existingUser) {
+    throw new AppError("This email is already in use.", 400);
+  }
+
+  // adding the new email to be verified and added to the user
+  const { token, hashedToken } = generateRandomToken();
+  await db
+    .update(userTable)
+    .set({
+      pendingEmail: newEmail,
+      emailVerificationToken: hashedToken,
+      emailVerificationExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
+    })
+    .where(eq(userTable.id, userId));
+
+  // sending verification mail
+  try {
+    await sendVerificationMail(newEmail, userName, token);
+  } catch (err) {
+    await db
+      .update(userTable)
+      .set({
+        pendingEmail: null,
+        emailVerificationToken: null,
+        emailVerificationExpiresIn: null,
+      })
+      .where(eq(userTable.id, userId));
+
+    throw err;
+  }
 };

@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 
 import userRouter from "./routes/auth.route.js";
+import tripRouter from "./routes/trip.route.js";
 import globalErrorHandler from "./controllers/error.controller";
 import AppError from "./utils/appError";
 
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
 
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/trip", tripRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   return next(

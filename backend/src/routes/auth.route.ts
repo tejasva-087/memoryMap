@@ -10,8 +10,10 @@ import {
   resendVerificationSchema,
   changePasswordSchema,
   changeEmailSchema,
-} from "../validators/users.validator.js";
+} from "../validators/auth.validator.js";
 import {
+  changeEmail,
+  changePassword,
   forgotPassword,
   logIn,
   protect,
@@ -58,69 +60,42 @@ const changeEmailLimiter = rateLimit({
   },
 });
 
-// ************************
-// SIGN UP
-// ************************
-router.post("/signup", authLimiter, validator(signUpSchema), signUp);
+router.post("/signUp", authLimiter, validator(signUpSchema), signUp);
+router.post("/logIn", authLimiter, validator(loginSchema), logIn);
 
-// ************************
-// LOG IN
-// ************************
-router.post("/login", authLimiter, validator(loginSchema), logIn);
-
-// ************************
-// VERIFY EMAIL
-// ************************
 router.get("/verifyemail/:verificationToken", emailActionLimiter, verifyEmail);
-
-// ************************
-// RESEND VERIFICATION
-// ************************
 router.get(
-  "/resendemailverification",
+  "/resendEmailVerification",
   emailActionLimiter,
   validator(resendVerificationSchema),
   resendEmailVerification,
 );
 
-// ************************
-// FORGOT PASSWORD
-// ************************
 router.post(
-  "/forgotpassword",
+  "/forgotPassword",
   emailActionLimiter,
   validator(forgotPasswordSchema),
   forgotPassword,
 );
-
-// ************************
-// RESET PASSWORD
-// ************************
 router.patch(
-  "/resetpassword/:resetToken",
+  "/resetPassword/:resetToken",
   validator(resetPasswordSchema),
   resetPassword,
 );
 
-// ************************
-// CHANGE PASSWORD
-// ************************
-// router.patch(
-//   "/changepassword",
-//   changePasswordLimiter,
-//   validator(changePasswordSchema),
-//   protect,
-//   changePassword,
-// );
-
-// // ************************
-// // CHANGE EMAIL
-// // ************************
-// router.patch(
-//   "/changeemail",
-//   changeEmailLimiter,
-//   validator(changeEmailSchema),
-//   changeEmail,
-// );
+router.patch(
+  "/changePassword",
+  changePasswordLimiter,
+  validator(changePasswordSchema),
+  protect,
+  changePassword,
+);
+router.patch(
+  "/changeEmail",
+  changeEmailLimiter,
+  validator(changeEmailSchema),
+  protect,
+  changeEmail,
+);
 
 export default router;

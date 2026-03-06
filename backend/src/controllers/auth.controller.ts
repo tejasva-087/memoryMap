@@ -7,6 +7,8 @@ import AppError from "../utils/appError.js";
 import {
   authenticateUser,
   authorize,
+  changeEmailAuthorized,
+  changePasswordAuthorized,
   createUser,
   generatePasswordResetToken,
   resendVerificationEmail,
@@ -162,6 +164,37 @@ export const protect = catchAsync(
       const user = await authorize(jwt);
       req.user = user;
       next();
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+export const changePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { password, newPassword } = req.body;
+    const { id } = req.user!;
+
+    try {
+      await changePasswordAuthorized(password, newPassword, id);
+    } catch (err) {
+      next(err);
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Password changed successfully.",
+    });
+  },
+);
+
+export const changeEmail = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { newEmail } = req.body;
+    const { email, userName, id } = req.user!;
+
+    try {
+      changeEmailAuthorized(id, newEmail, userName);
     } catch (err) {
       next(err);
     }

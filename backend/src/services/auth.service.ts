@@ -186,6 +186,7 @@ export const authenticateUser = async (email: string, password: string) => {
       email: userTable.email,
       password: userTable.password,
       isVerified: userTable.isVerified,
+      pendingEmail: userTable.pendingEmail,
     })
     .from(userTable)
     .where(eq(userTable.email, email));
@@ -352,6 +353,8 @@ export const changePasswordAuthorized = async (
       passwordChangedAt: new Date(),
     })
     .where(eq(userTable.id, id));
+
+  return;
 };
 
 // change email (AUTHORIZED ROUTE)
@@ -385,6 +388,7 @@ export const changeEmailAuthorized = async (
   // sending verification mail
   try {
     await sendVerificationMail(newEmail, userName, token);
+    return;
   } catch (err) {
     await db
       .update(userTable)

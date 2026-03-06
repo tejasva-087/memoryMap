@@ -2,35 +2,25 @@ import { isStrongPassword } from "validator";
 import { z } from "zod";
 
 const nameSchema = z
-  .string()
+  .string({ error: "Please enter your name." })
   .trim()
   .toLowerCase()
-  .min(2, { message: "Name must be at least 2 characters" })
-  .max(30, { message: "Name must be less than 30 characters" })
+  .min(2, { message: "Name must be at least 2 characters." })
+  .max(30, { message: "Name must be under 30 characters." })
   .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/, {
-    message: "Name can only contain letters and spaces",
+    message: "Name can only contain letters and spaces.",
   });
 
-// const UserNameSchema = z
-//   .string()
-//   .trim()
-//   .toLowerCase()
-//   .min(2, { message: "Username must be at least 2 characters" })
-//   .max(30, { message: "Username must be less than 30 characters" })
-//   .regex(/^[a-zA-Z0-9_]+$/, {
-//     message: "Username can only contain letters, numbers and underscores",
-//   });
-
 const emailSchema = z
-  .string()
+  .string({ error: "Please enter your email address." })
   .trim()
   .toLowerCase()
-  .email({ message: "Invalid email format" });
+  .email({ message: "Please enter a valid email address." });
 
 const strongPasswordSchema = z
-  .string()
-  .min(8, { message: "Password must be at least 8 characters" })
-  .max(128, { message: "Password too long" })
+  .string({ error: "Please enter a password." })
+  .min(8, { message: "Password must be at least 8 characters." })
+  .max(128, { message: "Password must be under 128 characters." })
   .refine(
     (password) =>
       isStrongPassword(password, {
@@ -42,7 +32,7 @@ const strongPasswordSchema = z
       }),
     {
       message:
-        "Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 symbol",
+        "Password must include at least one uppercase letter, one lowercase letter, one number, and one symbol.",
     },
   );
 
@@ -54,7 +44,10 @@ export const signUpSchema = z.object({
 
 export const loginSchema = z.object({
   email: emailSchema,
-  password: z.string().min(1, { message: "Password is required" }),
+  password: z
+    .string({ error: "Please enter your password." })
+    .trim()
+    .min(1, { message: "Password cannot be empty." }),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -65,11 +58,12 @@ export const resetPasswordSchema = z
   .object({
     newPassword: strongPasswordSchema,
     confirmPassword: z
-      .string()
-      .min(1, { message: "Please confirm your password" }),
+      .string({ error: "Please confirm your password." })
+      .trim()
+      .min(1, { message: "Please confirm your password." }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Passwords do not match.",
     path: ["confirmPassword"],
   });
 
@@ -79,11 +73,15 @@ export const resendVerificationSchema = z.object({
 
 export const changePasswordSchema = z
   .object({
-    password: strongPasswordSchema,
+    password: z
+      .string({ error: "Please enter your current password." })
+      .trim()
+      .min(1, { message: "Current password cannot be empty." }),
+
     newPassword: strongPasswordSchema,
   })
   .refine((data) => data.password !== data.newPassword, {
-    message: "New password must be different from the old password",
+    message: "New password must be different from your current password.",
     path: ["newPassword"],
   });
 

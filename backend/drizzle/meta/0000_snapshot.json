@@ -1,5 +1,5 @@
 {
-  "id": "4c33b90a-77ad-4d41-b3b2-6e41c6116cb3",
+  "id": "392c4ecc-1463-4cae-a291-5c32d8790227",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -84,7 +84,7 @@
           "name": "flag",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "country_name": {
           "name": "country_name",
@@ -132,7 +132,7 @@
           "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",

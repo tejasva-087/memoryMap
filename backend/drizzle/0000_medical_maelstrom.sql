@@ -9,7 +9,7 @@ CREATE TABLE "trip_images" (
 CREATE TABLE "trips" (
 	"trip_id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"flag" varchar(255),
+	"flag" varchar(255) NOT NULL,
 	"country_name" varchar(255) NOT NULL,
 	"place_name" varchar(255) NOT NULL,
 	"latitude" double precision NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE "trips" (
 	"start_date" timestamp with time zone NOT NULL,
 	"end_date" timestamp with time zone NOT NULL,
 	"duration" varchar(255),
-	"description" text,
+	"description" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now(),
 	"updated_at" timestamp with time zone DEFAULT now()
 );

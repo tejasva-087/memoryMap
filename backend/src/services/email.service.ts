@@ -1,4 +1,3 @@
-import React from "react";
 import nodemailer from "nodemailer";
 import AppError from "../utils/appError.js";
 import verifyEmailTemplate from "../emails/VerifyEmail.js";

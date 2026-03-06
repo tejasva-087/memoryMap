@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 import "dotenv/config";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import sharp from "sharp";
+
+sharp.concurrency(2);
+sharp.cache(false);
 
 import app from "./app.js";
 
@@ -15,15 +19,17 @@ const DB =
   process.env.NODE_ENV === "development"
     ? process.env.DATABASE_URL_DEV
     : process.env.DATABASE_URL_PROD;
-const sql = neon(DB!);
-export const db = drizzle({ client: sql });
+const pool = new Pool({ connectionString: DB });
+export const db = drizzle(pool);
+
+let server: ReturnType<typeof app.listen>;
 
 const startServer = async () => {
   try {
-    await sql`SELECT 1`;
+    await pool.query(`SELECT 1`);
     console.log("✅ Database connection successful");
 
-    app.listen(process.env.PORT, () => {
+    server = app.listen(process.env.PORT, () => {
       console.log(`🚀 SERVER STARTED ON PORT: ${process.env.PORT}`);
     });
   } catch (error) {
@@ -33,10 +39,6 @@ const startServer = async () => {
 };
 
 startServer();
-
-const server = app.listen(process.env.PORT, () => {
-  console.log(`SERVER STARTED ON PORT: ${process.env.PORT}`);
-});
 
 process.on("unhandledRejection", (err: Error) => {
   console.log("UNHANDLED REJECTION! 💥 Shutting down...");

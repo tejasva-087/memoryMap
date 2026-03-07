@@ -1,68 +1,9 @@
 {
-  "id": "392c4ecc-1463-4cae-a291-5c32d8790227",
+  "id": "5862ee07-63cc-4bc9-bf8f-b9ae77349bbb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.trip_images": {
-      "name": "trip_images",
-      "schema": "",
-      "columns": {
-        "image_id": {
-          "name": "image_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "trip_id": {
-          "name": "trip_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "image_url": {
-          "name": "image_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "caption": {
-          "name": "caption",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "order_index": {
-          "name": "order_index",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "trip_images_trip_id_trips_trip_id_fk": {
-          "name": "trip_images_trip_id_trips_trip_id_fk",
-          "tableFrom": "trip_images",
-          "tableTo": "trips",
-          "columnsFrom": [
-            "trip_id"
-          ],
-          "columnsTo": [
-            "trip_id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.trips": {
       "name": "trips",
       "schema": "",
@@ -84,7 +25,8 @@
           "name": "flag",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'https://flagcdn.com/w40/un.png'"
         },
         "country_name": {
           "name": "country_name",
@@ -131,6 +73,12 @@
         "description": {
           "name": "description",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_keys": {
+          "name": "image_keys",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true
         },

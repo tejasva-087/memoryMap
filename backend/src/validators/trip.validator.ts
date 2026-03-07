@@ -21,24 +21,20 @@ export const createTripSchema = z
       .url({ message: "Please enter a valid flag image URL." })
       .max(255, { message: "Flag URL must be under 255 characters." })
       .optional(),
-
     country: z
       .string({ error: "Please enter the country you visited." })
       .trim()
       .min(1, { message: "Country name cannot be empty." })
       .max(255, { message: "Country name must be under 255 characters." }),
-
     place: z
       .string({ error: "Please enter the place you visited." })
       .trim()
       .min(1, { message: "Place name cannot be empty." })
       .max(255, { message: "Place name must be under 255 characters." }),
-
     latitude: z.coerce
       .number({ error: "Please provide a valid latitude." })
       .min(-90, { message: "Latitude must be between -90 and 90." })
       .max(90, { message: "Latitude must be between -90 and 90." }),
-
     longitude: z.coerce
       .number({ error: "Please provide a valid longitude." })
       .min(-180, { message: "Longitude must be between -180 and 180." })
@@ -57,6 +53,8 @@ export const createTripSchema = z
       .trim()
       .min(1, { message: "Description cannot be empty." })
       .max(2000, { message: "Description must be under 2000 characters." }),
+
+    metadata: z.string().optional(),
   })
   .refine((data) => data.endDate >= data.startDate, {
     message: "End date must be after the start date.",

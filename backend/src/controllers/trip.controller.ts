@@ -1,52 +1,75 @@
 import { NextFunction, Request, Response } from "express";
 
-import { differenceInDays } from "date-fns";
-
 import { db } from "../server";
 import catchAsync from "../utils/catchAsync";
 import { tripTable } from "../schemas/trip.schema";
 
-import { compressImage, compressImages } from "../utils/compressImage";
+import { compressImages } from "../utils/compressImage";
 import AppError from "../utils/appError";
-import { uploadMultipleImages } from "../services/storage.service";
 
-function getTripDuration(start: Date, end: Date) {
-  const days = differenceInDays(end, start);
+import { imageTable } from "../schemas/image.schema";
+import {
+  getSignedUrls,
+  uploadMultipleImages,
+} from "../services/storage.service";
 
-  if (days < 7) return `${days} days`;
-  if (days < 30) return `${Math.floor(days / 7)} weeks`;
-  return `${Math.floor(days / 30)} months`;
-}
+export const createTrip = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user!.id;
 
-export const createTrip = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user!.id;
+    const images = req.files as Express.Multer.File[];
+    if (!images || images.length === 0) {
+      throw new AppError("Please upload at least one image.", 400);
+    }
+    const buffers = await compressImages(images);
 
-  const { startDate, endDate, ...tripData } = req.body;
-  const duration = getTripDuration(startDate, endDate);
+    const { metadata, ...tripDetails } = req.body;
+    const imageMetaData = JSON.parse(metadata);
 
-  const images = req.files as Express.Multer.File[];
-  if (!images || images.length === 0) {
-    throw new AppError("Please upload at least one image.", 400);
-  }
-  const buffers = await compressImages(images);
+    try {
+      const imageKeys = await uploadMultipleImages(buffers, userId, "trip");
 
-  // const imageKeys = await uploadMultipleImages(buffers, userId);
+      const { trip, tripImages } = await db.transaction(async (tx) => {
+        // Adding the trip details
+        const [trip] = await tx
+          .insert(tripTable)
+          .values({
+            userId,
+            ...tripDetails,
+          })
+          .returning();
 
-  // const [trip] = await db
-  //   .insert(tripTable)
-  //   .values({
-  //     ...tripData,
-  //     startDate,
-  //     endDate,
-  //     duration,
-  //     imageKeys,
-  //   })
-  //   .returning();
+        const tripImages = await tx
+          .insert(imageTable)
+          .values(
+            imageKeys.map((imageKey, index) => ({
+              tripId: trip.id,
+              imageKey,
+              orderIndex: imageMetaData[index].orderIndex,
+              caption: imageMetaData[index].caption,
+            })),
+          )
+          .returning({
+            id: imageTable.id,
+            orderIndex: imageTable.orderIndex,
+            caption: imageTable.caption,
+          });
 
-  // res.status(201).json({
-  //   status: "success",
-  //   data: {
-  //     ...trip,
-  //   },
-  // });
-});
+        return { trip, tripImages };
+      });
+
+      const imageUrls = await getSignedUrls(imageKeys);
+      const signedTripImages = tripImages.map((img, i) => ({
+        ...img,
+        imageUrl: imageUrls[i],
+      }));
+
+      res.status(201).json({
+        status: "success",
+        data: { ...trip, images: signedTripImages },
+      });
+    } catch (err) {
+      next(new AppError("Image upload failed", 500));
+    }
+  },
+);

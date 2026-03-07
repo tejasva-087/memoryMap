@@ -8,6 +8,27 @@
       "when": 1772915255905,
       "tag": "0000_equal_leo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772917311478,
+      "tag": "0001_mysterious_purple_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772917464159,
+      "tag": "0002_closed_swarm",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772921045399,
+      "tag": "0003_good_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

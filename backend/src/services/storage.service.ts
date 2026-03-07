@@ -2,9 +2,8 @@ import { randomUUID } from "crypto";
 import {
   S3Client,
   PutObjectCommand,
-  DeleteObjectCommand,
-  GetObjectCommand,
   DeleteObjectsCommand,
+  GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import AppError from "../utils/appError";
@@ -24,15 +23,14 @@ export const uploadImage = async (
   label: string,
 ) => {
   const key = `${label}/${id}/${randomUUID()}.webp`;
-
-  const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET!,
-    Key: key,
-    Body: buffer,
-    ContentType: "image/webp",
-  });
-  await r2.send(command);
-
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET!,
+      Key: key,
+      Body: buffer,
+      ContentType: "image/webp",
+    }),
+  );
   return key;
 };
 
@@ -41,19 +39,17 @@ export const getSignedImageUrl = async (key: string) => {
     Bucket: process.env.R2_BUCKET!,
     Key: key,
   });
-
-  const url = await getSignedUrl(r2, command, {
-    expiresIn: 60 * 5,
-  });
-
-  return url;
+  return getSignedUrl(r2, command, { expiresIn: 60 * 5 });
 };
 
-export const deleteImage = async (key: string) => {
+export const deleteMultipleImages = async (keys: string[]) => {
+  if (!keys.length) return;
   await r2.send(
-    new DeleteObjectCommand({
+    new DeleteObjectsCommand({
       Bucket: process.env.R2_BUCKET!,
-      Key: key,
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+      },
     }),
   );
 };
@@ -63,32 +59,18 @@ export const uploadMultipleImages = async (
   id: string,
   label: string,
 ) => {
-  const keys: string[] = [];
-
+  let keys: string[] = [];
   try {
-    await Promise.all(
-      buffers.map(async (buffer) => {
-        keys.push(await uploadImage(buffer, id, label));
-      }),
+    keys = await Promise.all(
+      buffers.map((buffer) => uploadImage(buffer, id, label)),
     );
     return keys;
   } catch (err) {
-    keys.map(async (key) => {
-      await Promise.all(keys.map((key) => deleteImage(key)));
-    });
-    throw new AppError("Image upload failed", 500);
+    await deleteMultipleImages(keys);
+    throw err;
   }
 };
 
-export const deleteMultipleImages = async (keys: string[]) => {
-  if (!keys.length) return;
-
-  await r2.send(
-    new DeleteObjectsCommand({
-      Bucket: process.env.R2_BUCKET!,
-      Delete: {
-        Objects: keys.map((key) => ({ Key: key })),
-      },
-    }),
-  );
+export const getSignedUrls = async (keys: string[]) => {
+  return Promise.all(keys.map((key) => getSignedImageUrl(key)));
 };

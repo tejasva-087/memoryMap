@@ -24,11 +24,8 @@ export const tripTable = pgTable("trips", {
 
   startDate: timestamp("start_date", { withTimezone: true }).notNull(),
   endDate: timestamp("end_date", { withTimezone: true }).notNull(),
-  duration: varchar("duration", { length: 255 }),
 
   description: text("description").notNull(),
-
-  imageKeys: text("image_keys").array().notNull(),
 
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),

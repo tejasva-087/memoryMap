@@ -39,19 +39,23 @@ export const getSignedImageUrl = async (key: string) => {
     Bucket: process.env.R2_BUCKET!,
     Key: key,
   });
-  return getSignedUrl(r2, command, { expiresIn: 60 * 5 });
+  return await getSignedUrl(r2, command, { expiresIn: 60 * 5 });
 };
 
 export const deleteMultipleImages = async (keys: string[]) => {
   if (!keys.length) return;
-  await r2.send(
-    new DeleteObjectsCommand({
-      Bucket: process.env.R2_BUCKET!,
-      Delete: {
-        Objects: keys.map((key) => ({ Key: key })),
-      },
-    }),
-  );
+  try {
+    await r2.send(
+      new DeleteObjectsCommand({
+        Bucket: process.env.R2_BUCKET!,
+        Delete: {
+          Objects: keys.map((key) => ({ Key: key })),
+        },
+      }),
+    );
+  } catch (err) {
+    throw new AppError("There was an error deleting data.", 500);
+  }
 };
 
 export const uploadMultipleImages = async (
@@ -61,16 +65,19 @@ export const uploadMultipleImages = async (
 ) => {
   let keys: string[] = [];
   try {
-    keys = await Promise.all(
+    return await Promise.all(
       buffers.map((buffer) => uploadImage(buffer, id, label)),
     );
-    return keys;
   } catch (err) {
     await deleteMultipleImages(keys);
-    throw err;
+    throw new AppError("There was an error uploading images.", 500);
   }
 };
 
 export const getSignedUrls = async (keys: string[]) => {
-  return Promise.all(keys.map((key) => getSignedImageUrl(key)));
+  try {
+    return Promise.all(keys.map((key) => getSignedImageUrl(key)));
+  } catch (err) {
+    throw new AppError("There was an error fetching images.", 500);
+  }
 };

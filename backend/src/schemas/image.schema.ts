@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer } from "drizzle-orm/pg-core";
 import { tripTable } from "./trip.schema";
 
 export const imageTable = pgTable("trip_images", {

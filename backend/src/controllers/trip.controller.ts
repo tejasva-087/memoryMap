@@ -14,7 +14,7 @@ import {
   getSignedUrls,
   uploadMultipleImages,
 } from "../services/storage.service";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 
 export const createTrip = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -173,28 +173,119 @@ export const deleteTrip = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const tripId = req.params.id as string;
 
-    const imageKeys = await db
-      .select({ imageKey: imageTable.imageKey })
-      .from(imageTable)
-      .where(eq(imageTable.tripId, tripId));
+    try {
+      const imageKeys = await db
+        .select({ imageKey: imageTable.imageKey })
+        .from(imageTable)
+        .where(eq(imageTable.tripId, tripId));
 
-    const keys = imageKeys.map((img) => img.imageKey);
-    if (keys.length > 0) {
-      await deleteMultipleImages(keys);
+      const keys = imageKeys.map((img) => img.imageKey);
+      if (keys.length > 0) {
+        await deleteMultipleImages(keys);
+      }
+
+      const deletedTrip = await db
+        .delete(tripTable)
+        .where(eq(tripTable.id, tripId))
+        .returning({ id: tripTable.id });
+
+      if (deletedTrip.length === 0) {
+        return next(new AppError("There exists no trip with this id", 404));
+      }
+
+      res.status(200).json({
+        message: "success",
+        data: null,
+      });
+    } catch (err) {
+      next(err);
     }
+  },
+);
 
-    const deletedTrip = await db
-      .delete(tripTable)
-      .where(eq(tripTable.id, tripId))
-      .returning({ id: tripTable.id });
+export const updateTrip = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user!.id;
+    const tripId = req.params.id as string;
 
-    if (deletedTrip.length === 0) {
-      return next(new AppError("There exists no trip with this id", 404));
+    const { deletedImages, metadata, ...data } = req.body;
+    const newImagesFiles = req.files as Express.Multer.File[];
+    const imageMetaData = metadata ? JSON.parse(metadata) : [];
+
+    try {
+      await db.transaction(async (tx) => {
+        // 1. Delete images
+        if (deletedImages?.length) {
+          const deletedImageKeys = await tx
+            .delete(imageTable)
+            .where(inArray(imageTable.id, deletedImages))
+            .returning({ imageKey: imageTable.imageKey });
+
+          await deleteMultipleImages(
+            deletedImageKeys.map((obj) => obj.imageKey),
+          );
+        }
+
+        // 2. Upload new images
+        if (newImagesFiles?.length) {
+          const buffer = await compressImages(newImagesFiles);
+          const imageKeys = await uploadMultipleImages(buffer, userId, "trip");
+
+          await tx.insert(imageTable).values(
+            imageKeys.map((imageKey, index) => ({
+              tripId: tripId,
+              imageKey,
+              orderIndex: imageMetaData[index]?.orderIndex ?? index,
+              caption: imageMetaData[index]?.caption ?? null,
+            })),
+          );
+        }
+
+        // 3. Update trip info
+        if (Object.keys(data).length > 0) {
+          await tx
+            .update(tripTable)
+            .set({ ...data, updatedAt: new Date() })
+            .where(eq(tripTable.id, tripId));
+        }
+      });
+
+      // 4. etch updated trip
+      const [trip] = await db
+        .select()
+        .from(tripTable)
+        .where(eq(tripTable.id, tripId));
+
+      if (!trip) {
+        return next(new AppError("Trip not found", 404));
+      }
+
+      const tripImages = await db
+        .select({
+          id: imageTable.id,
+          imageKey: imageTable.imageKey,
+          caption: imageTable.caption,
+          orderIndex: imageTable.orderIndex,
+        })
+        .from(imageTable)
+        .where(eq(imageTable.tripId, tripId));
+
+      const signedTripImages = await Promise.all(
+        tripImages.map(async (imageData) => {
+          const { imageKey, ...metadata } = imageData;
+          const signedUrl = await getSignedImageUrl(imageKey);
+          return { ...metadata, imageUrl: signedUrl };
+        }),
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          trip: { ...trip, images: signedTripImages },
+        },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    res.status(200).json({
-      message: "success",
-      data: null,
-    });
   },
 );

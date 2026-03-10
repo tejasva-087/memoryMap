@@ -1,12 +1,16 @@
 import express from "express";
 import validator from "../validators/validator";
-import { createTripSchema } from "../validators/trip.validator";
+import {
+  createTripSchema,
+  updateTripSchema,
+} from "../validators/trip.validator";
 import { protect } from "../controllers/auth.controller";
 import {
   createTrip,
   deleteTrip,
   getAllTrips,
   getTrip,
+  updateTrip,
 } from "../controllers/trip.controller";
 import multer from "multer";
 
@@ -23,6 +27,15 @@ router
   )
   .get(protect, getAllTrips);
 
-router.route("/:id").get(protect, getTrip).delete(protect, deleteTrip);
+router
+  .route("/:id")
+  .get(protect, getTrip)
+  .delete(protect, deleteTrip)
+  .patch(
+    protect,
+    upload.array("newImages", 10),
+    validator(updateTripSchema),
+    updateTrip,
+  );
 
 export default router;

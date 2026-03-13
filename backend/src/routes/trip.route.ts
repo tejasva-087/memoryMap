@@ -9,6 +9,7 @@ import {
   createTrip,
   deleteTrip,
   getAllTrips,
+  getSignedImages,
   getTrip,
   updateTrip,
 } from "../controllers/trip.controller";
@@ -37,5 +38,7 @@ router
     validator(updateTripSchema),
     updateTrip,
   );
+
+router.route("/:id/images").get(protect, getSignedImages);
 
 export default router;

@@ -11,10 +11,26 @@ import { imageTable } from "../schemas/image.schema";
 import {
   deleteMultipleImages,
   getSignedImageUrl,
-  getSignedUrls,
   uploadMultipleImages,
 } from "../services/storage.service";
 import { desc, eq, inArray } from "drizzle-orm";
+
+interface ImageObj {
+  id: string;
+  tripId?: string;
+  imageKey: string;
+  caption: string | null;
+  orderIndex: number | null;
+}
+async function getSignedImagesObj(imgObj: ImageObj[]) {
+  return await Promise.all(
+    imgObj.map(async (image) => {
+      const { imageKey, ...metadata } = image;
+      const signedUrl = await getSignedImageUrl(imageKey);
+      return { ...metadata, imageUrl: signedUrl };
+    }),
+  );
+}
 
 export const createTrip = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +49,6 @@ export const createTrip = catchAsync(
       const imageKeys = await uploadMultipleImages(buffers, userId, "trip");
 
       const { trip, tripImages } = await db.transaction(async (tx) => {
-        // Adding the trip details
         const [trip] = await tx
           .insert(tripTable)
           .values({
@@ -52,20 +67,12 @@ export const createTrip = catchAsync(
               caption: imageMetaData[index].caption,
             })),
           )
-          .returning({
-            id: imageTable.id,
-            orderIndex: imageTable.orderIndex,
-            caption: imageTable.caption,
-          });
+          .returning();
 
         return { trip, tripImages };
       });
 
-      const imageUrls = await getSignedUrls(imageKeys);
-      const signedTripImages = tripImages.map((img, i) => ({
-        ...img,
-        imageUrl: imageUrls[i],
-      }));
+      const signedTripImages = await getSignedImagesObj(tripImages);
 
       res.status(201).json({
         status: "success",
@@ -146,13 +153,7 @@ export const getTrip = catchAsync(
     }
 
     try {
-      const signedImages = await Promise.all(
-        images.map(async (image) => {
-          const { imageKey, ...imageDetails } = image;
-          const imageUrl = await getSignedImageUrl(imageKey);
-          return { ...imageDetails, imageUrl };
-        }),
-      );
+      const signedImages = await getSignedImagesObj(images);
 
       res.status(200).json({
         status: "success",
@@ -212,6 +213,10 @@ export const updateTrip = catchAsync(
     const newImagesFiles = req.files as Express.Multer.File[];
     const imageMetaData = metadata ? JSON.parse(metadata) : [];
 
+    if (!tripId) {
+      return next(new AppError("Please provide trip id.", 400));
+    }
+
     try {
       await db.transaction(async (tx) => {
         // 1. Delete images
@@ -270,13 +275,7 @@ export const updateTrip = catchAsync(
         .from(imageTable)
         .where(eq(imageTable.tripId, tripId));
 
-      const signedTripImages = await Promise.all(
-        tripImages.map(async (imageData) => {
-          const { imageKey, ...metadata } = imageData;
-          const signedUrl = await getSignedImageUrl(imageKey);
-          return { ...metadata, imageUrl: signedUrl };
-        }),
-      );
+      const signedTripImages = await getSignedImagesObj(tripImages);
 
       res.status(200).json({
         status: "success",
@@ -287,5 +286,27 @@ export const updateTrip = catchAsync(
     } catch (err) {
       next(err);
     }
+  },
+);
+
+export const getSignedImages = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tripId = req.params.id;
+
+    if (!tripId) return next(new AppError("Please provide trip id.", 400));
+
+    const tripImages = await db
+      .select()
+      .from(imageTable)
+      .where(eq(imageTable.tripId, tripId as string));
+
+    const signedImages = tripImages ? await getSignedImagesObj(tripImages) : [];
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        images: signedImages,
+      },
+    });
   },
 );

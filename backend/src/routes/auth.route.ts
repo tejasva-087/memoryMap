@@ -22,12 +22,13 @@ import {
   signUp,
   verifyEmail,
 } from "../controllers/auth.controller.js";
+import { verifyCaptcha } from "../middleware/verifyCaptcha";
 
 const router = express.Router();
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 5
+  max: 5, // 5
   message: {
     status: "fail",
     message: "Too many authentication attempts. Try again later.",
@@ -35,7 +36,7 @@ const authLimiter = rateLimit({
 });
 const emailActionLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 5
+  max: 5, // 5
   message: {
     status: "fail",
     message: "Too many email requests. Please wait.",
@@ -44,7 +45,7 @@ const emailActionLimiter = rateLimit({
 
 const changePasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 3
+  max: 3, // 3
   message: {
     status: "fail",
     message: "Too many password change attempts. Try again later.",
@@ -53,20 +54,38 @@ const changePasswordLimiter = rateLimit({
 
 const changeEmailLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100, // 3
+  max: 3, // 3
   message: {
     status: "fail",
     message: "Too many email change attempts. Try again later.",
   },
 });
 
-router.post("/signUp", authLimiter, validator(signUpSchema), signUp);
-router.post("/logIn", authLimiter, validator(loginSchema), logIn);
+router.post(
+  "/signUp",
+  authLimiter,
+  verifyCaptcha,
+  validator(signUpSchema),
+  signUp,
+);
+router.post(
+  "/logIn",
+  authLimiter,
+  verifyCaptcha,
+  validator(loginSchema),
+  logIn,
+);
 
-router.get("/verifyemail/:verificationToken", emailActionLimiter, verifyEmail);
+router.get(
+  "/verifyemail/:verificationToken",
+  emailActionLimiter,
+  verifyCaptcha,
+  verifyEmail,
+);
 router.get(
   "/resendEmailVerification",
   emailActionLimiter,
+  verifyCaptcha,
   validator(resendVerificationSchema),
   resendEmailVerification,
 );
@@ -74,11 +93,14 @@ router.get(
 router.post(
   "/forgotPassword",
   emailActionLimiter,
+  verifyCaptcha,
   validator(forgotPasswordSchema),
   forgotPassword,
 );
 router.patch(
   "/resetPassword/:resetToken",
+  changePasswordLimiter,
+  verifyCaptcha,
   validator(resetPasswordSchema),
   resetPassword,
 );
@@ -86,15 +108,15 @@ router.patch(
 router.patch(
   "/changePassword",
   changePasswordLimiter,
-  validator(changePasswordSchema),
   protect,
+  validator(changePasswordSchema),
   changePassword,
 );
 router.patch(
   "/changeEmail",
   changeEmailLimiter,
-  validator(changeEmailSchema),
   protect,
+  validator(changeEmailSchema),
   changeEmail,
 );
 

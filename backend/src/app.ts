@@ -7,8 +7,10 @@ import userRouter from "./routes/auth.route.js";
 import tripRouter from "./routes/trip.route.js";
 import globalErrorHandler from "./controllers/error.controller";
 import AppError from "./utils/appError";
+import helmet from "helmet";
 
 const app = express();
+app.use(helmet());
 
 export const apiLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,

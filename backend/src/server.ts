@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
 import "dotenv/config";
 import { Pool } from "@neondatabase/serverless";
+import { neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import sharp from "sharp";
+
+neonConfig.webSocketConstructor = ws;
 
 sharp.concurrency(2);
 sharp.cache(false);

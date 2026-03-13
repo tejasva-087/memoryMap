@@ -46,7 +46,7 @@ function createSendToken(user: User, res: Response) {
   const token = signToken(user.id);
   res.cookie("jwt", token, cookieOptions);
 
-  user.password = undefined;
+  delete user.password;
   res.status(200).json({
     status: "success",
     data: {
@@ -60,11 +60,9 @@ function createSendToken(user: User, res: Response) {
 export const signUp = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { password, userName, email } = req.body;
-    try {
-      await createUser(userName, email, password);
-    } catch (err) {
-      next(err);
-    }
+
+    await createUser(userName, email, password);
+
     res.status(201).json({
       status: "success",
       message: "Verification email sent. Please verify your email.",
@@ -76,11 +74,7 @@ export const resendEmailVerification = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body;
 
-    try {
-      await resendVerificationEmail(email);
-    } catch (err) {
-      next(err);
-    }
+    await resendVerificationEmail(email);
 
     res.status(200).json({
       status: "success",
@@ -97,12 +91,8 @@ export const verifyEmail = catchAsync(
       return next(new AppError("Verification token missing", 400));
     }
 
-    try {
-      const verifiedUser = await verifyEmailToken(verificationToken as string);
-      createSendToken(verifiedUser, res);
-    } catch (err) {
-      next(err);
-    }
+    const verifiedUser = await verifyEmailToken(verificationToken as string);
+    createSendToken(verifiedUser, res);
   },
 );
 
@@ -110,12 +100,8 @@ export const logIn = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
-    try {
-      const user = await authenticateUser(email, password);
-      createSendToken(user, res);
-    } catch (err) {
-      next(err);
-    }
+    const user = await authenticateUser(email, password);
+    createSendToken(user, res);
   },
 );
 
@@ -123,11 +109,7 @@ export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req.body;
 
-    try {
-      await generatePasswordResetToken(email);
-    } catch (err) {
-      next(err);
-    }
+    await generatePasswordResetToken(email);
 
     res.status(200).json({
       status: "success",
@@ -141,15 +123,11 @@ export const resetPassword = catchAsync(
     const { resetToken } = req.params;
     const { newPassword } = req.body;
 
-    try {
-      await updatePassword(resetToken as string, newPassword);
-      res.status(200).json({
-        status: "success",
-        message: "Your password has been updated.",
-      });
-    } catch (err) {
-      next(err);
-    }
+    await updatePassword(resetToken as string, newPassword);
+    res.status(200).json({
+      status: "success",
+      message: "Your password has been updated.",
+    });
   },
 );
 
@@ -160,13 +138,8 @@ export const protect = catchAsync(
       return next(new AppError("You are not logged in. Please log in.", 401));
     }
 
-    try {
-      const user = await authorize(jwt);
-      req.user = user;
-      next();
-    } catch (err) {
-      next(err);
-    }
+    const user = await authorize(jwt);
+    req.user = user;
   },
 );
 
@@ -175,11 +148,7 @@ export const changePassword = catchAsync(
     const { password, newPassword } = req.body;
     const { id } = req.user!;
 
-    try {
-      await changePasswordAuthorized(password, newPassword, id);
-    } catch (err) {
-      next(err);
-    }
+    await changePasswordAuthorized(password, newPassword, id);
 
     res.status(200).json({
       status: "success",
@@ -193,10 +162,6 @@ export const changeEmail = catchAsync(
     const { newEmail } = req.body;
     const { email, userName, id } = req.user!;
 
-    try {
-      changeEmailAuthorized(id, newEmail, userName);
-    } catch (err) {
-      next(err);
-    }
+    await changeEmailAuthorized(id, newEmail, userName);
   },
 );

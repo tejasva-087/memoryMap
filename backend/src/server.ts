@@ -29,7 +29,8 @@ const startServer = async () => {
     await pool.query(`SELECT 1`);
     console.log("✅ Database connection successful");
 
-    server = app.listen(process.env.PORT, () => {
+    const PORT = process.env.PORT || 3000;
+    server = app.listen(PORT, () => {
       console.log(`🚀 SERVER STARTED ON PORT: ${process.env.PORT}`);
     });
   } catch (error) {
